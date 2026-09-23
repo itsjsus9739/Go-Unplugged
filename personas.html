@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Go Unplugged - Buyer Personas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #F4F4F8;
+      --card-bg: #FFFFFF;
+      --text-main: #101116;
+      --text-muted: #4B4E5A;
+      --accent-lucas: #372FEA; /* Azul vibrante */
+      --accent-valeria: #E63946; /* Rojo/Coral elegante */
+      --border-color: #E2E2E8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      font-family: 'Inter', sans-serif;
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 40px 20px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .header h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 36px;
+      color: var(--text-main);
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: var(--text-muted);
+      font-size: 18px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .personas-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--border-color);
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    /* Cabecera de la Tarjeta */
+    .card-header {
+      position: relative;
+      padding: 40px 20px 20px;
+      text-align: center;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .card-header.lucas { border-top: 6px solid var(--accent-lucas); }
+    .card-header.valeria { border-top: 6px solid var(--accent-valeria); }
+
+    .avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin: 0 auto 15px auto;
+      border: 4px solid var(--card-bg);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .name {
+      font-family: 'Poppins', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Cuerpo de la Tarjeta */
+    .card-body {
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .section h3 {
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      color: var(--text-main);
+    }
+
+    .section h3.lucas-title { color: var(--accent-lucas); }
+    .section h3.valeria-title { color: var(--accent-valeria); }
+
+    .section ul {
+      list-style: none;
+    }
+
+    .section ul li {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      position: relative;
+      padding-left: 20px;
+    }
+
+    .section ul li::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: #A0A0B0;
+      font-size: 18px;
+      line-height: 14px;
+    }
+
+    .value-prop {
+      background-color: var(--bg-color);
+      padding: 15px;
+      border-radius: 8px;
+      font-style: italic;
+      font-weight: 600;
+      font-size: 14px;
+      text-align: center;
+      margin-top: auto;
+      border-left: 4px solid;
+    }
+
+    .value-prop.lucas { border-color: var(--accent-lucas); }
+    .value-prop.valeria { border-color: var(--accent-valeria); }
+
+    /* Responsivo */
+    @media (max-width: 768px) {
+      .personas-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>Buyer Personas: Go Unplugged</h1>
+    <p>Perfiles estratégicos de usuarios objetivo para alinear desarrollo, marketing y experiencia de usuario.</p>
+  </div>
+
+  <div class="personas-container">
+    
+    <!-- TARJETA: LUCAS -->
+    <article class="card">
+      <div class="card-header lucas">
+        <!-- Imagen de archivo que representa a Lucas -->
+        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Lucas" class="avatar">
+        <h2 class="name">Lucas el Enfocado</h2>
+        <p class="subtitle">El Procrastinador Consciente</p>
+      </div>
+      
+      <div class="card-body">
+        <div class="section">
+          <h3 class="lucas-title">👤 Datos Demográficos</h3>
+          <ul>
+            <li><strong>Edad:</strong> 22 años (Rango 17-30).</li>
+            <li><strong>Ocupación:</strong> Estudiante universitario, joven profesional o freelance.</li>
+            <li><strong>Perfil socioeconómico:</strong> Medio-bajo a Medio-alto. Zonas urbanas.</li>
+            <li><strong>Entorno:</strong> Conectado; confía en un amigo, pareja o familiar para delegar el control.</li>
+          </ul>
+        </div>
+
+        <div class="section">
+          <h3 class="lucas-title">🧠 Psicografía y Hábitos</h3>
+          <ul>
+            <li><strong>Personalidad:</strong> Autocrítico, con metas, pero con poca fuerza de voluntad.</li>
+            <li><strong>Hábitos:</strong> 4 a 7 horas diarias en TikTok, Reels y Shorts.</li>
+            <li><strong>Comportamiento:</strong> Se salta las restricciones nativas ("15 min más").</li>
+          </ul>
+        </div>
+
+        <div class="section">
+          <h3 class="lucas-title">💔 Puntos de Dolor</h3>
+          <ul>
+            <li>Siente que el día se le escapa en ocio vacío sin avanzar.</li>
+            <li>Culpa y agotamiento mental tras pasar horas haciendo scroll.</li>
+            <li>Sabe que si él tiene el control, se saboteará a sí mismo.</li>
+          </ul>
+        </div>
+
+        <div class="section">
+          <h3 class="lucas-title">🎯 Metas</h3>
+          <ul>
+            <li>Mejorar productividad sin desconectarse del mundo totalmente.</li>
+            <li><strong>Accountability:</strong> Necesita la fricción de pedirle permiso a otra persona.</li>
+            <li>Ir a dormir sintiendo que aprovechó el día.</li>
+          </ul>
+        </div>
+
+        <div class="section">
+          <h3 class="lucas-title">📢 Estrategia de Mensaje</h3>
+          <ul>
+            <li><strong>Canales:</strong> TikTok, IG Reels, UGC, Humor (POV).</li>
+            <li><strong>Busca:</strong> Efectividad estricta, diseño simple y rapidez de uso.</li>
+            <li><strong>Objeción:</strong> ¿Qué pasa en una urgencia? ¿Invasión de privacidad?</li>
+          </ul>
+        </div>
+
+        <div class="value-prop lucas">
+          "El único bloqueador que no puedes engañar porque la llave la tiene alguien más."
+        </div>
+      </div>
+    </article>
+
+    <!-- TARJETA: VALERIA -->
+    <article class="card">
+      <div class="card-header valeria">
+        <!-- Imagen de archivo que representa a Valeria -->
+        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Valeria" class="avatar">
+        <h2 class="name">Valeria la Competitiva</h2>
+        <p class="subtitle">Ansiedad de Rendimiento</p>
+      </div>
+      
+      <div class="card-body">
+        <div class="section">
+          <h3 class="valeria-title">👤 Datos Demográficos</h3>
+          <ul>
+            <li><strong>Edad:</strong> 28 años (Rango 17-30).</li>
+            <li><strong>Ocupación:</strong> Empleada remoto/híbrido (tech/finanzas) o preparando oposiciones.</li>
+            <li><strong>Perfil socioeconómico:</strong> Medio-alto a Alto (invierte en sí misma).</li>
+            <li><strong>Entorno:</strong> Pareja estable o colega con mentalidad de alto rendimiento.</li>
+          </ul>
+        </div>
+
+        <div class="section">
+          <h3 class="valeria-title">🧠 Psicografía y Hábitos</h3>
+          <ul>
+            <li><strong>Personalidad:</strong> Perfeccionista, usuaria de Notion, sufre "fatiga de decisión".</li>
+            <li><strong>Hábitos:</strong> Usa redes como micro-recompensa, pero pierde el control (45 min).</li>
+            <li><strong>Comportamiento:</strong> No procrastina por pereza, sino como válvula de escape al estrés.</li>
+          </ul>
+        </div>
+
+        <div class="section">
+          <h3 class="valeria-title">💔 Puntos de Dolor</h3>
+          <ul>
+            <li>Fragmentación de la atención que arruina el <em>Deep Work</em>.</li>
+            <li>Culpabilidad: un "falso descanso" que le roba tiempo de calidad (gym, lectura).</li>
+            <li>Se autoengaña entrando a redes por "inspiración laboral".</li>
+          </ul>
+        </div>
+
+        <div class="section">
+          <h3 class="valeria-title">🎯 Metas</h3>
+          <ul>
+            <li>Externalizar el autocontrol para ahorrar energía mental.</li>
+            <li>Convertir el bloqueo en un reto/pacto compartido con su pareja.</li>
+            <li>Recuperar límites claros entre productividad y desconexión.</li>
+          </ul>
+        </div>
+
+        <div class="section">
+          <h3 class="valeria-title">📢 Estrategia de Mensaje</h3>
+          <ul>
+            <li><strong>Canales:</strong> IG Ads, StudyTok, TechTok, Productividad Estética.</li>
+            <li><strong>Busca:</strong> 0 fallos técnicos, métricas/reportes detallados, interfaz sobria.</li>
+            <li><strong>Objeción:</strong> ¿Interrumpo a mi pareja al pedir permiso? ¿Consume mucha batería?</li>
+          </ul>
+        </div>
+
+        <div class="value-prop valeria">
+          "Protege tu enfoque sin gastar tu fuerza de voluntad: el bloqueo profesional que no puedes desactivar tú solo."
+        </div>
+      </div>
+    </article>
+
+  </div>
+
+</body>
+</html>
