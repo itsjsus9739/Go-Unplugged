@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Go Unplugged - Prototipo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #F4F4F8;
+      font-family: 'Inter', sans-serif;
+      color: #101116;
+      display: flex;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .card {
+      border: 1px solid #D9D9E3;
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card-user {
+      background-color: #FFFFFF;
+    }
+
+    .card-partner {
+      background-color: #ECEDF4;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #101116;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-text {
+      font-size: 15px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .status-blocked {
+      color: #D32F2F;
+    }
+
+    .status-unlocked {
+      color: #2E7D32;
+    }
+
+    .partner-msg {
+      font-size: 13px;
+      text-align: center;
+      color: #4B4E5A;
+      min-height: 20px;
+    }
+
+    .partner-msg.pending {
+      color: #D32F2F;
+      font-weight: 600;
+    }
+
+    .partner-msg.approved {
+      color: #2E7D32;
+      font-weight: 600;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.15s ease;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    button:active {
+      transform: scale(0.99);
+    }
+
+    .btn-primary {
+      background-color: #372FEA;
+      color: #FFFFFF;
+    }
+
+    .btn-secondary {
+      background-color: #EFEFF6;
+      color: #101116;
+      border: 1px solid #D5D5E2;
+    }
+
+    .btn-partner {
+      background-color: #251CB8;
+      color: #FFFFFF;
+    }
+
+    /* Consola */
+    .console-wrapper {
+      background-color: #101218;
+      border-radius: 6px;
+      padding: 12px;
+      height: 120px;
+      overflow-y: auto;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 12px;
+      color: #FFFFFF;
+      line-height: 1.4;
+    }
+
+    .console-wrapper p {
+      margin-bottom: 4px;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Go Unplugged</h1>
+
+    <!-- Vista del Usuario -->
+    <section class="card card-user">
+      <div class="card-title">Vista del Usuario</div>
+      <div id="lblEstado" class="status-text status-blocked">Estado: 🔴 BLOQUEO ACTIVO</div>
+      <button class="btn-primary" onclick="btnIntentarAcceso()">Intentar abrir Instagram</button>
+      <button class="btn-secondary" onclick="btnSincronizar()">Sincronizar Permisos</button>
+    </section>
+
+    <!-- Simulación del Socio -->
+    <section class="card card-partner">
+      <div class="card-title">Simulación: Teléfono del Socio</div>
+      <div id="lblNotificacion" class="partner-msg">Sin notificaciones.</div>
+      <button class="btn-partner" onclick="btnAprobarSocio()">Aprobar Solicitud</button>
+    </section>
+
+    <!-- Consola de Registro -->
+    <div id="consola" class="console-wrapper"></div>
+  </div>
+
+  <script>
+    // ==========================================
+    // FASE 1: LÓGICA DE NEGOCIO (MODELO)
+    // ==========================================
+    class SocioResponsabilidad {
+      constructor(nombre) {
+        this.nombre = nombre;
+        this.solicitudesPendientes = [];
+      }
+
+      recibirSolicitud(usuario) {
+        this.solicitudesPendientes.push(usuario);
+      }
+
+      aprobarDesbloqueo() {
+        if (this.solicitudesPendientes.length > 0) {
+          const usuario = this.solicitudesPendientes.shift();
+          return [true, `✅ ${this.nombre} ha APROBADO el desbloqueo para ${usuario}.`];
+        }
+        return [false, `⏳ ${this.nombre} no tiene solicitudes pendientes.`];
+      }
+    }
+
+    class GoUnplugged {
+      constructor(usuario, socio) {
+        this.usuario = usuario;
+        this.socio = socio;
+        this.redesBloqueadas = ["instagram.com", "tiktok.com", "x.com"];
+        this.estadoBloqueo = true;
+      }
+
+      intentarAcceso(redSocial) {
+        if (this.estadoBloqueo && this.redesBloqueadas.includes(redSocial)) {
+          this.socio.recibirSolicitud(this.usuario);
+          return [false, `❌ Acceso a ${redSocial} denegado. Solicitud enviada al socio.`];
+        }
+        return [true, `✅ Tráfico permitido hacia ${redSocial}.`];
+      }
+
+      sincronizarAutorizacion() {
+        const [aprobado, msj] = this.socio.aprobarDesbloqueo();
+        if (aprobado) {
+          this.estadoBloqueo = false;
+          return [true, "🟢 Restricción levantada. Puedes navegar."];
+        } else {
+          return [false, "🔴 Sin aprobación aún. Mantén el enfoque."];
+        }
+      }
+    }
+
+    // ==========================================
+    // FASE 2: CONTROLADOR E INTERFAZ
+    // ==========================================
+    const socio = new SocioResponsabilidad("Mariana");
+    const appCore = new GoUnplugged("Francisco", socio);
+
+    const lblEstado = document.getElementById("lblEstado");
+    const lblNotificacion = document.getElementById("lblNotificacion");
+    const consola = document.getElementById("consola");
+
+    function registrarLog(mensaje) {
+      const p = document.createElement("p");
+      p.textContent = `> ${mensaje}`;
+      consola.appendChild(p);
+      consola.scrollTop = consola.scrollHeight;
+    }
+
+    function btnIntentarAcceso() {
+      const [permitido, mensaje] = appCore.intentarAcceso("instagram.com");
+      registrarLog(mensaje);
+
+      if (!permitido) {
+        lblNotificacion.textContent = "🔔 ¡Francisco quiere desbloquear las redes!";
+        lblNotificacion.className = "partner-msg pending";
+        alert("Acceso Bloqueado: Aplicación bloqueada. Se ha notificado a tu socio.");
+      }
+    }
+
+    function btnAprobarSocio() {
+      if (socio.solicitudesPendientes.length > 0) {
+        registrarLog("Socio: Solicitud aprobada localmente. Esperando que el usuario sincronice.");
+        lblNotificacion.textContent = "Aprobación registrada en el servidor.";
+        lblNotificacion.className = "partner-msg approved";
+      } else {
+        alert("Socio: No hay solicitudes pendientes.");
+      }
+    }
+
+    function btnSincronizar() {
+      const [aprobado, mensaje] = appCore.sincronizarAutorizacion();
+      registrarLog(mensaje);
+
+      if (aprobado) {
+        lblEstado.textContent = "Estado: 🟢 DESBLOQUEADO";
+        lblEstado.className = "status-text status-unlocked";
+
+        lblNotificacion.textContent = "Sin notificaciones.";
+        lblNotificacion.className = "partner-msg";
+
+        alert("Éxito: Restricción levantada temporalmente.");
+      }
+    }
+
+    // Inicio
+    registrarLog("Sistema iniciado. Bloqueo activo.");
+  </script>
+</body>
+</html>
