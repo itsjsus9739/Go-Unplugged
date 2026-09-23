@@ -1,124 +1,167 @@
-import tkinter as tk
-from tkinter import messagebox
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Go Unplugged - Prototipo</title>
+  <style>
+    * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    body {
+      background-color: #F4F4F8;
+      display: flex;
+      justify-content: center;
+      padding: 30px 15px;
+      margin: 0;
+    }
+    .contenedor {
+      width: 100%;
+      max-width: 500px;
+    }
+    h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 24px;
+      font-weight: bold;
+      color: #101116;
+      text-align: center;
+      margin-top: 0;
+    }
+    .panel {
+      border: 1px solid #d5d7e0;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+    .panel-usuario { background-color: #FFFFFF; }
+    .panel-socio { background-color: #ECEDF4; }
+    .panel-titulo {
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #101116;
+    }
+    .estado {
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+    .estado-bloqueado { color: #D32F2F; }
+    .estado-desbloqueado { color: #2E7D32; }
+    .notificacion {
+      text-align: center;
+      font-size: 13px;
+      color: #4B4E5A;
+      margin-bottom: 12px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      font-size: 13px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-bottom: 8px;
+    }
+    .btn-principal { background-color: #372FEA; color: #FFFFFF; }
+    .btn-secundario { background-color: #EFEFF6; color: #101116; }
+    .btn-socio { background-color: #251CB8; color: #FFFFFF; }
+    .consola {
+      background-color: #101218;
+      color: #FFFFFF;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      height: 120px;
+      overflow-y: auto;
+      border-radius: 6px;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
 
-# ==========================================
-# FASE 1: LÓGICA DE NEGOCIO (BACKEND)
-# ==========================================
-class SocioResponsabilidad:
-    def __init__(self, nombre):
-        self.nombre = nombre
-        self.solicitudes_pendientes = []
+  <div class="contenedor">
+    <h1>Go Unplugged</h1>
 
-    def recibir_solicitud(self, usuario):
-        self.solicitudes_pendientes.append(usuario)
+    <!-- Vista del Usuario -->
+    <div class="panel panel-usuario">
+      <div class="panel-titulo">Vista del Usuario</div>
+      <div id="lblEstado" class="estado estado-bloqueado">Estado: 🔴 BLOQUEO ACTIVO</div>
+      <button class="btn-principal" onclick="intentarAcceso()">Intentar abrir Instagram</button>
+      <button class="btn-secundario" onclick="sincronizar()">Sincronizar Permisos</button>
+    </div>
 
-    def aprobar_desbloqueo(self):
-        if self.solicitudes_pendientes:
-            usuario = self.solicitudes_pendientes.pop(0)
-            return True, f"✅ {self.nombre} ha APROBADO el desbloqueo para {usuario}."
-        return False, f"⏳ {self.nombre} no tiene solicitudes pendientes."
+    <!-- Simulación del Socio -->
+    <div class="panel panel-socio">
+      <div class="panel-titulo">Simulación: Teléfono del Socio</div>
+      <div id="lblNotif" class="notificacion">Sin notificaciones.</div>
+      <button class="btn-socio" onclick="aprobarSocio()">Aprobar Solicitud</button>
+    </div>
 
-class GoUnplugged:
-    def __init__(self, usuario, socio):
-        self.usuario = usuario
-        self.socio = socio
-        self.redes_bloqueadas = ["instagram.com", "tiktok.com", "x.com"]
-        self.estado_bloqueo = True  # Inicia bloqueado por defecto en este demo
+    <!-- Consola de Registro -->
+    <div id="consola" class="consola">
+      > Sistema iniciado. Bloqueo activo.<br>
+    </div>
+  </div>
 
-    def intentar_acceso(self, red_social):
-        if self.estado_bloqueo and red_social in self.redes_bloqueadas:
-            self.socio.recibir_solicitud(self.usuario)
-            return False, f"❌ Acceso a {red_social} denegado. Solicitud enviada al socio."
-        return True, f"✅ Tráfico permitido hacia {red_social}."
+  <script>
+    // Variables de estado
+    let estadoBloqueo = true;
+    let solicitudesPendientes = [];
+    let aprobacionPendienteSincronizar = false;
+    const usuario = "Francisco";
+    const socioNombre = "Mariana";
 
-    def sincronizar_autorizacion(self):
-        aprobado, msj = self.socio.aprobar_desbloqueo()
-        if aprobado:
-            self.estado_bloqueo = False
-            return True, "🟢 Restricción levantada. Puedes navegar."
-        else:
-            return False, "🔴 Sin aprobación aún. Mantén el enfoque."
+    function log(msg) {
+      const consola = document.getElementById("consola");
+      consola.innerHTML += `> ${msg}<br>`;
+      consola.scrollTop = consola.scrollHeight;
+    }
 
-# ==========================================
-# FASE 2: INTERFAZ GRÁFICA (FRONTEND)
-# ==========================================
-class AppGUI:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Go Unplugged - Prototipo")
-        self.root.geometry("500x450")
-        self.root.configure(bg="#F4F4F8") # Usando colores de tu paleta
+    function intentarAcceso() {
+      if (estadoBloqueo) {
+        solicitudesPendientes.push(usuario);
+        log("❌ Acceso a instagram.com denegado. Solicitud enviada al socio.");
+        const lbl = document.getElementById("lblNotif");
+        lbl.innerText = `🔔 ¡${usuario} quiere desbloquear las redes!`;
+        lbl.style.color = "#D32F2F";
+        alert("Aplicación bloqueada. Se ha notificado a tu socio.");
+      } else {
+        log("✅ Tráfico permitido hacia instagram.com.");
+      }
+    }
 
-        # Instancias del backend
-        self.socio = SocioResponsabilidad("Mariana")
-        self.app_core = GoUnplugged("Francisco", self.socio)
+    function aprobarSocio() {
+      if (solicitudesPendientes.length > 0) {
+        solicitudesPendientes.shift();
+        aprobacionPendienteSincronizar = true;
+        log(`Socio: Solicitud aprobada localmente. Esperando que el usuario sincronice.`);
+        const lbl = document.getElementById("lblNotif");
+        lbl.innerText = "Aprobación registrada en el servidor.";
+        lbl.style.color = "#2E7D32";
+      } else {
+        alert("No hay solicitudes pendientes.");
+      }
+    }
 
-        self._construir_interfaz()
-
-    def _construir_interfaz(self):
-        # Título Principal
-        tk.Label(self.root, text="Go Unplugged", font=("Poppins", 20, "bold"), bg="#F4F4F8", fg="#101116").pack(pady=10)
-
-        # Marco del Usuario
-        frame_usuario = tk.LabelFrame(self.root, text="Vista del Usuario", bg="#FFFFFF", font=("Inter", 10, "bold"), padx=15, pady=15)
-        frame_usuario.pack(fill="x", padx=20, pady=10)
-
-        self.lbl_estado = tk.Label(frame_usuario, text="Estado: 🔴 BLOQUEO ACTIVO", font=("Inter", 12, "bold"), fg="#D32F2F", bg="#FFFFFF")
-        self.lbl_estado.pack(pady=5)
-
-        tk.Button(frame_usuario, text="Intentar abrir Instagram", bg="#372FEA", fg="white", font=("Inter", 10, "bold"),
-                  command=self.btn_intentar_acceso).pack(fill="x", pady=5)
+    function sincronizar() {
+      if (aprobacionPendienteSincronizar) {
+        aprobacionPendienteSincronizar = false;
+        estadoBloqueo = false;
+        log("🟢 Restricción levantada. Puedes navegar.");
         
-        tk.Button(frame_usuario, text="Sincronizar Permisos", bg="#EFEFF6", fg="#101116", font=("Inter", 10),
-                  command=self.btn_sincronizar).pack(fill="x", pady=5)
+        const lblEstado = document.getElementById("lblEstado");
+        lblEstado.className = "estado estado-desbloqueado";
+        lblEstado.innerText = "Estado: 🟢 DESBLOQUEADO";
 
-        # Marco del Socio (Simulación de un segundo teléfono)
-        frame_socio = tk.LabelFrame(self.root, text="Simulación: Teléfono del Socio", bg="#ECEDF4", font=("Inter", 10, "bold"), padx=15, pady=15)
-        frame_socio.pack(fill="x", padx=20, pady=10)
+        const lblNotif = document.getElementById("lblNotif");
+        lblNotif.innerText = "Sin notificaciones.";
+        lblNotif.style.color = "#4B4E5A";
 
-        self.lbl_notificacion = tk.Label(frame_socio, text="Sin notificaciones.", font=("Inter", 10), bg="#ECEDF4", fg="#4B4E5A")
-        self.lbl_notificacion.pack(pady=5)
-
-        tk.Button(frame_socio, text="Aprobar Solicitud", bg="#251CB8", fg="white", font=("Inter", 10, "bold"),
-                  command=self.btn_aprobar_socio).pack(fill="x", pady=5)
-
-        # Consola de Registro
-        self.consola = tk.Text(self.root, height=6, bg="#101218", fg="#FFFFFF", font=("Courier", 9))
-        self.consola.pack(fill="x", padx=20, pady=10)
-        self.registrar_log("Sistema iniciado. Bloqueo activo.")
-
-    def registrar_log(self, mensaje):
-        self.consola.insert(tk.END, f"> {mensaje}\n")
-        self.consola.see(tk.END)
-
-    # --- Controladores de Eventos ---
-    def btn_intentar_acceso(self):
-        permitido, mensaje = self.app_core.intentar_acceso("instagram.com")
-        self.registrar_log(mensaje)
-        
-        if not permitido:
-            self.lbl_notificacion.config(text="🔔 ¡Francisco quiere desbloquear las redes!", fg="#D32F2F")
-            messagebox.showwarning("Acceso Bloqueado", "Aplicación bloqueada. Se ha notificado a tu socio.")
-
-    def btn_aprobar_socio(self):
-        # Esta acción ocurre conceptualmente en el teléfono del socio
-        if self.socio.solicitudes_pendientes:
-            self.registrar_log("Socio: Solicitud aprobada localmente. Esperando que el usuario sincronice.")
-            self.lbl_notificacion.config(text="Aprobación registrada en el servidor.", fg="#2E7D32")
-        else:
-            messagebox.showinfo("Socio", "No hay solicitudes pendientes.")
-
-    def btn_sincronizar(self):
-        # El teléfono del usuario consulta la base de datos
-        aprobado, mensaje = self.app_core.sincronizar_autorizacion()
-        self.registrar_log(mensaje)
-
-        if aprobado:
-            self.lbl_estado.config(text="Estado: 🟢 DESBLOQUEADO", fg="#2E7D32")
-            self.lbl_notificacion.config(text="Sin notificaciones.", fg="#4B4E5A")
-            messagebox.showinfo("Éxito", "Restricción levantada temporalmente.")
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = AppGUI(root)
-    root.mainloop()
+        alert("Restricción levantada temporalmente.");
+      } else {
+        log("🔴 Sin aprobación aún. Mantén el enfoque.");
+      }
+    }
+  </script>
+</body>
+</html>
