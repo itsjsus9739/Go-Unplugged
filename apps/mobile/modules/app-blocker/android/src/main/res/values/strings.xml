@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="appblocker_service_label">Go Unplugged · Bloqueo de apps</string>
+  <string name="appblocker_service_description">Go Unplugged usa este servicio solo para saber qué app está en primer plano y bloquearla cuando se agota el límite que acordaste con tu socio de confianza. No lee el contenido de tu pantalla, mensajes ni publicaciones.</string>
+</resources>

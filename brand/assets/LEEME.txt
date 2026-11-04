@@ -1,0 +1,30 @@
+GO UNPLUGGED -- KIT DE RECURSOS DE MARCA
+=========================================
+
+/vector
+  icon-lock.svg -- candado redibujado en vector, color de marca #3B34D0
+
+/favicons-app-icons
+  favicon-16.png, favicon-32.png, favicon-64.png -- para <link rel="icon"> del sitio
+  appicon-180.png -- apple-touch-icon (fondo negro solido, requerido por iOS)
+  appicon-512.png, appicon-1024.png -- para Play Store / App Store
+
+/lockups
+  logo-principal.png -- logotipo completo a color (icono + texto + efecto glitch)
+  logo_mono_white.png -- version monocromatica blanca (fondos oscuros)
+  logo_mono_black.png -- version monocromatica negra (fondos claros)
+  wordmark-only.png -- solo el texto, sin candado
+  lockup-stacked.png -- candado arriba, texto abajo (para espacios cuadrados)
+  submark-circle.png -- candado en circulo indigo (avatar de redes sociales)
+  submark-square.png -- candado en cuadrado indigo redondeado (app icon alterno)
+
+/iconos-producto
+  icon-clock / icon-check / icon-bell / icon-shield / icon-cloud
+  -- mismo estilo de trazo que el candado, en PNG y SVG.
+  Usalos para: limite de tiempo, aprobacion, notificacion, privacidad, sincronizacion.
+
+/patron
+  pattern-tile.png -- cuadricula tileable de 128x128 para fondos de marca
+
+Todos los PNG tienen fondo transparente salvo los app icons (fondo negro requerido).
+Color de marca: #3B34D0 (indigo) - Negro de marca: #08090B

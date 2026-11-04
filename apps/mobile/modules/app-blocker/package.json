@@ -1,0 +1,8 @@
+{
+  "name": "app-blocker",
+  "version": "0.1.0",
+  "description": "Go Unplugged: bloqueo de apps (Android Accessibility/UsageStats, iOS Screen Time API)",
+  "main": "index.ts",
+  "license": "UNLICENSED",
+  "private": true
+}
