@@ -1,0 +1,42 @@
+# Configuración de Supabase CLI (desarrollo local: `supabase start`).
+# Solo se listan los valores que difieren de los predeterminados.
+project_id = "go-unplugged"
+
+[api]
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+
+[db]
+major_version = 17
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[realtime]
+enabled = true
+
+[auth]
+site_url = "gounplugged://"
+additional_redirect_urls = ["gounplugged://**", "exp://**"]
+jwt_expiry = 3600
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+enable_confirmations = false   # en producción: true
+double_confirm_changes = true
+
+# Apple / Google: activar cuando haya credenciales.
+[auth.external.apple]
+enabled = false
+client_id = ""
+secret = "env(SUPABASE_AUTH_EXTERNAL_APPLE_SECRET)"
+
+[auth.external.google]
+enabled = false
+client_id = ""
+secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET)"
+
+[functions.send-push]
+verify_jwt = false   # la protege el header x-webhook-secret

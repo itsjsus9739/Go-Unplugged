@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Go Unplugged — Prototipo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #F4F4F8;
+    --card: #FFFFFF;
+    --card-socio: #ECEDF4;
+    --card-btn-soft: #EFEFF6;
+    --ink: #101116;
+    --ink-soft: #4B4E5A;
+    --line: #DDDFE9;
+    --indigo: #372FEA;
+    --indigo-deep: #251CB8;
+    --red: #D32F2F;
+    --green: #2E7D32;
+    --console-bg: #101218;
+    --console-ink: #FFFFFF;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg: #131416; --card:#1B1D20; --card-socio:#202226; --card-btn-soft:#26282D;
+      --ink:#F0F1F3; --ink-soft:#B7BAC2; --line:#33353B;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg: #131416; --card:#1B1D20; --card-socio:#202226; --card-btn-soft:#26282D;
+    --ink:#F0F1F3; --ink-soft:#B7BAC2; --line:#33353B;
+  }
+
+  *{ box-sizing:border-box; }
+  html{ height:100%; }
+  body{
+    margin:0; min-height:100%; background: var(--bg); color: var(--ink);
+    font-family:'Inter', system-ui, sans-serif; font-size:15px;
+    padding: env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);
+    display:flex; justify-content:center;
+  }
+  .app{ width:100%; max-width: 520px; padding: 34px 22px 40px; }
+  h1{
+    font-family:'Poppins', sans-serif; font-weight:700; font-size:1.5rem;
+    text-align:center; margin: 0 0 22px;
+  }
+  .frame{
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 18px 18px 20px; margin-bottom: 16px;
+  }
+  .frame.socio{ background: var(--card-socio); }
+  .frame-title{
+    font-family:'Inter'; font-weight:600; font-size:0.82rem; color: var(--ink-soft);
+    text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 14px;
+  }
+  .estado{
+    text-align:center; font-weight:700; font-size:1rem; padding: 6px 0 14px;
+  }
+  .estado.bloqueado{ color: var(--red); }
+  .estado.desbloqueado{ color: var(--green); }
+
+  button{
+    width:100%; border:none; border-radius: 8px; padding: 12px 16px;
+    font-family:'Inter'; font-weight:600; font-size:0.92rem; cursor:pointer;
+    margin-top: 8px; transition: opacity .12s ease, transform .1s ease;
+  }
+  button:active{ transform: scale(0.985); }
+  .btn-indigo{ background: var(--indigo); color:#fff; }
+  .btn-indigo:hover{ background: var(--indigo-deep); }
+  .btn-soft{ background: var(--card-btn-soft); color: var(--ink); }
+  .btn-soft:hover{ opacity:0.85; }
+  .btn-socio{ background: var(--indigo-deep); color:#fff; }
+  .btn-socio:hover{ opacity:0.9; }
+
+  .notificacion{
+    text-align:center; font-size:0.9rem; color: var(--ink-soft); padding: 4px 0 4px;
+  }
+  .notificacion.alerta{ color: var(--red); font-weight:600; }
+  .notificacion.ok{ color: var(--green); font-weight:600; }
+
+  .consola{
+    background: var(--console-bg); color: var(--console-ink);
+    border-radius: 10px; padding: 12px 14px; height: 150px; overflow-y:auto;
+    font-family: 'Courier New', monospace; font-size: 0.82rem; line-height:1.55;
+    white-space: pre-wrap;
+  }
+  .consola-line{ opacity:0; animation: fadein .15s ease forwards; }
+  @keyframes fadein{ to{ opacity:1; } }
+
+  .toast{
+    position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(20px);
+    background: var(--card); color: var(--ink); border: 1px solid var(--line);
+    border-radius: 10px; padding: 14px 18px; max-width: 90%; width: 420px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.22);
+    opacity:0; pointer-events:none; transition: opacity .2s ease, transform .2s ease;
+    font-size: 0.88rem; z-index: 60;
+  }
+  .toast.show{ opacity:1; transform: translateX(-50%) translateY(0); pointer-events:auto; }
+  .toast .t-title{ font-weight:700; margin-bottom:4px; }
+  .toast.warning .t-title{ color: var(--red); }
+  .toast.info .t-title{ color: var(--green); }
+
+  :focus-visible{ outline: 2px solid var(--indigo); outline-offset:2px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <h1>Go Unplugged</h1>
+
+  <div class="frame">
+    <div class="frame-title">Vista del usuario</div>
+    <div id="lblEstado" class="estado bloqueado">Estado: 🔴 BLOQUEO ACTIVO</div>
+    <button class="btn-indigo" id="btnIntentar">Intentar abrir Instagram</button>
+    <button class="btn-soft" id="btnSincronizar">Sincronizar Permisos</button>
+  </div>
+
+  <div class="frame socio">
+    <div class="frame-title">Simulación: teléfono del socio</div>
+    <div id="lblNotificacion" class="notificacion">Sin notificaciones.</div>
+    <button class="btn-socio" id="btnAprobar">Aprobar Solicitud</button>
+  </div>
+
+  <div class="consola" id="consola"></div>
+</div>
+
+<div class="toast" id="toast">
+  <div class="t-title" id="toastTitle"></div>
+  <div id="toastMsg"></div>
+</div>
+
+<script>
+  // ==========================================
+  // FASE 1: LÓGICA DE NEGOCIO (idéntica al prototipo de escritorio)
+  // ==========================================
+  class SocioResponsabilidad {
+    constructor(nombre){
+      this.nombre = nombre;
+      this.solicitudesPendientes = [];
+    }
+    recibirSolicitud(usuario){
+      this.solicitudesPendientes.push(usuario);
+    }
+    aprobarDesbloqueo(){
+      if (this.solicitudesPendientes.length){
+        const usuario = this.solicitudesPendientes.shift();
+        return [true, `✅ ${this.nombre} ha APROBADO el desbloqueo para ${usuario}.`];
+      }
+      return [false, `⏳ ${this.nombre} no tiene solicitudes pendientes.`];
+    }
+  }
+
+  class GoUnplugged {
+    constructor(usuario, socio){
+      this.usuario = usuario;
+      this.socio = socio;
+      this.redesBloqueadas = ["instagram.com", "tiktok.com", "x.com"];
+      this.estadoBloqueo = true;
+    }
+    intentarAcceso(redSocial){
+      if (this.estadoBloqueo && this.redesBloqueadas.includes(redSocial)){
+        this.socio.recibirSolicitud(this.usuario);
+        return [false, `❌ Acceso a ${redSocial} denegado. Solicitud enviada al socio.`];
+      }
+      return [true, `✅ Tráfico permitido hacia ${redSocial}.`];
+    }
+    sincronizarAutorizacion(){
+      const [aprobado, msj] = this.socio.aprobarDesbloqueo();
+      if (aprobado){
+        this.estadoBloqueo = false;
+        return [true, "🟢 Restricción levantada. Puedes navegar."];
+      }
+      return [false, "🔴 Sin aprobación aún. Mantén el enfoque."];
+    }
+  }
+
+  // ==========================================
+  // FASE 2: INTERFAZ (equivalente web del GUI de Tkinter)
+  // ==========================================
+  const socio = new SocioResponsabilidad("Mariana");
+  const appCore = new GoUnplugged("Francisco", socio);
+
+  const $consola = document.getElementById('consola');
+  const $lblEstado = document.getElementById('lblEstado');
+  const $lblNotificacion = document.getElementById('lblNotificacion');
+  const $toast = document.getElementById('toast');
+  const $toastTitle = document.getElementById('toastTitle');
+  const $toastMsg = document.getElementById('toastMsg');
+  let toastTimer = null;
+
+  function registrarLog(mensaje){
+    const line = document.createElement('div');
+    line.className = 'consola-line';
+    line.textContent = '> ' + mensaje;
+    $consola.appendChild(line);
+    $consola.scrollTop = $consola.scrollHeight;
+  }
+
+  function mostrarToast(tipo, titulo, mensaje){
+    $toast.className = 'toast show ' + tipo;
+    $toastTitle.textContent = titulo;
+    $toastMsg.textContent = mensaje;
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { $toast.className = 'toast ' + tipo; }, 3200);
+  }
+
+  registrarLog("Sistema iniciado. Bloqueo activo.");
+
+  document.getElementById('btnIntentar').addEventListener('click', () => {
+    const [permitido, mensaje] = appCore.intentarAcceso("instagram.com");
+    registrarLog(mensaje);
+    if (!permitido){
+      $lblNotificacion.textContent = "🔔 ¡Francisco quiere desbloquear las redes!";
+      $lblNotificacion.className = "notificacion alerta";
+      mostrarToast('warning', 'Acceso bloqueado', 'Aplicación bloqueada. Se ha notificado a tu socio.');
+    }
+  });
+
+  document.getElementById('btnAprobar').addEventListener('click', () => {
+    if (socio.solicitudesPendientes.length){
+      registrarLog("Socio: Solicitud aprobada localmente. Esperando que el usuario sincronice.");
+      $lblNotificacion.textContent = "Aprobación registrada en el servidor.";
+      $lblNotificacion.className = "notificacion ok";
+    } else {
+      mostrarToast('info', 'Socio', 'No hay solicitudes pendientes.');
+    }
+  });
+
+  document.getElementById('btnSincronizar').addEventListener('click', () => {
+    const [aprobado, mensaje] = appCore.sincronizarAutorizacion();
+    registrarLog(mensaje);
+    if (aprobado){
+      $lblEstado.textContent = "Estado: 🟢 DESBLOQUEADO";
+      $lblEstado.className = "estado desbloqueado";
+      $lblNotificacion.textContent = "Sin notificaciones.";
+      $lblNotificacion.className = "notificacion";
+      mostrarToast('info', 'Éxito', 'Restricción levantada temporalmente.');
+    }
+  });
+</script>
+
+</body>
+</html>
