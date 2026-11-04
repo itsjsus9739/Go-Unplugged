@@ -47,7 +47,8 @@
     "build:apk": "eas build -p android --profile preview",
     "build:ios": "eas build -p ios --profile preview",
     "build:dev": "eas build --profile development",
-    "gen:types": "supabase gen types typescript --linked --schema public > src/types/database.ts"
+    "gen:types": "supabase gen types typescript --linked --schema public > src/types/database.ts",
+    "build:apk:docker": "docker build --platform linux/amd64 -f docker/android.Dockerfile --target export --output dist ."
   },
   "private": true
 }
