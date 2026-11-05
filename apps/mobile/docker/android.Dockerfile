@@ -10,7 +10,8 @@
 # Notas:
 #  - --platform linux/amd64 es obligatorio en Mac con Apple Silicon (las herramientas
 #    de Android para Linux solo existen en x86_64); allí será más lento por emulación.
-#  - Docker necesita >= 6 GB de RAM (Docker Desktop → Settings → Resources).
+#  - Docker necesita >= 6 GB de RAM. En Windows (WSL2) se ajusta en %USERPROFILE%\.wslconfig
+#    (memory=10GB, processors=6) y luego `wsl --shutdown`.
 #  - El APK queda firmado con la clave de depuración: sirve para instalar y probar,
 #    no para subir a Google Play (para eso: EAS Build o un keystore propio).
 # =============================================================================
@@ -56,13 +57,18 @@ RUN npx expo prebuild -p android --no-install --clean
 # Solo arm64-v8a (casi todos los teléfonos actuales): compila ~4 veces más rápido.
 # Para un APK universal usa: --build-arg ABIS=armeabi-v7a,arm64-v8a,x86,x86_64
 ARG ABIS=arm64-v8a
+# Paralelismo acotado: con muchos núcleos y poca RAM, Gradle + C++ agotan la memoria
+# y Docker Desktop se cae. 4 workers va bien con ~8 GB; súbelo con --build-arg WORKERS=8.
+ARG WORKERS=4
+ENV CMAKE_BUILD_PARALLEL_LEVEL=$WORKERS
 # Las cachés (Gradle, NDK, CMake) sobreviven entre builds: la 2.ª vez no se vuelven a descargar.
 RUN --mount=type=cache,target=/root/.gradle \
     --mount=type=cache,target=/opt/android-sdk/ndk \
     --mount=type=cache,target=/opt/android-sdk/cmake \
     cd android \
- && ./gradlew assembleRelease --no-daemon --parallel \
-      -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g" \
+ && ./gradlew assembleRelease --no-daemon --max-workers=$WORKERS \
+      -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxMetaspaceSize=768m" \
+      -Dkotlin.daemon.jvm.options="-Xmx1g" \
       -PreactNativeArchitectures=$ABIS
 
 # Etapa final: solo el APK (docker build --output lo copia a tu carpeta)
