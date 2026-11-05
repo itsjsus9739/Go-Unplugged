@@ -50,5 +50,8 @@
     "gen:types": "supabase gen types typescript --linked --schema public > src/types/database.ts",
     "build:apk:docker": "docker build --platform linux/amd64 -f docker/android.Dockerfile --target export --output dist ."
   },
-  "private": true
+  "private": true,
+  "engines": {
+    "node": ">=22.13.0"
+  }
 }
