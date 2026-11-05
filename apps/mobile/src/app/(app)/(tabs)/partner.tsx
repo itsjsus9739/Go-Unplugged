@@ -1,13 +1,24 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Share, View } from 'react-native';
+import { Alert, Share, Text, View } from 'react-native';
 
-import { RequestCard } from '../../../components/RequestCard';
-import { Badge, Body, Button, Card, ErrorText, Eyebrow, Field, Heading, Row, Screen, Title } from '../../../components/ui';
+import {
+  Avatar,
+  Body,
+  Button,
+  ErrorText,
+  Field,
+  BigNumber,
+  ListRow,
+  Row,
+  Screen,
+  Section,
+  TextLink,
+} from '../../../components/ui';
 import { useAsync } from '../../../hooks/useAsync';
 import { useRealtime } from '../../../hooks/useRealtime';
 import { friendlyError } from '../../../lib/errors';
-import { formatMinutes } from '../../../lib/format';
+import { formatMinutes, timeAgo } from '../../../lib/format';
 import { useAuthed } from '../../../providers/SessionProvider';
 import {
   acceptInvitation,
@@ -18,16 +29,18 @@ import {
 } from '../../../services/partnerships';
 import { decideRequest, listRequestsToDecide } from '../../../services/requests';
 import { listRules } from '../../../services/rules';
-import { space } from '../../../theme';
+import { fonts, space, useThemeColors } from '../../../theme';
 
 export default function Partner() {
   const { userId } = useAuthed();
+  const c = useThemeColors();
   const [code, setCode] = useState<string | null>(null);
   const [inputCode, setInputCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [pinFor, setPinFor] = useState<string | null>(null);
   const [pin, setPin] = useState('');
+  const [joining, setJoining] = useState(false);
 
   const { data, reload } = useAsync(async () => {
     const [partnerships, toDecide] = await Promise.all([listPartnerships(), listRequestsToDecide(userId)]);
@@ -56,10 +69,9 @@ export default function Partner() {
     }
   }
 
-  async function invite(role: 'monitored' | 'partner') {
+  async function invite() {
     try {
-      const inv = await createInvitation(role);
-      setCode(inv.code);
+      setCode((await createInvitation('monitored')).code);
     } catch (e) {
       setError(friendlyError(e));
     }
@@ -69,6 +81,7 @@ export default function Partner() {
     try {
       await acceptInvitation(inputCode);
       setInputCode('');
+      setJoining(false);
       await reload();
     } catch (e) {
       setError(friendlyError(e));
@@ -80,7 +93,7 @@ export default function Partner() {
       await setPartnerPin(partnershipId, pin);
       setPinFor(null);
       setPin('');
-      Alert.alert('PIN guardado', 'Dáselo en persona solo si hace falta (urgencias o desinstalar).');
+      Alert.alert('PIN guardado', 'Dáselo en persona solo si hace falta.');
     } catch (e) {
       setError(friendlyError(e));
     }
@@ -88,8 +101,8 @@ export default function Partner() {
 
   function confirmRevoke(id: string, asPartner: boolean) {
     Alert.alert(
-      'Terminar acuerdo',
-      asPartner ? 'Dejarás de supervisar sus límites.' : 'Tu socio recibirá un aviso y el cambio se hará efectivo en 24 h.',
+      'Terminar el acuerdo',
+      asPartner ? 'Dejarás de aprobar su tiempo extra.' : 'Le avisamos a tu socio. El cambio se hace efectivo en 24 horas.',
       [
         { text: 'Cancelar', style: 'cancel' },
         { text: 'Terminar', style: 'destructive', onPress: () => revokePartnership(id).then(reload).catch((e) => setError(friendlyError(e))) },
@@ -99,79 +112,95 @@ export default function Partner() {
 
   return (
     <Screen>
+      <Text style={{ fontFamily: fonts.heading, fontSize: 30, color: c.ink, marginTop: space.md }}>Acuerdo</Text>
       <ErrorText>{error}</ErrorText>
 
-      {!!data?.toDecide.length && (
-        <View style={{ gap: space.md }}>
-          <Title>Por decidir</Title>
-          {data.toDecide.map((r) => (
-            <RequestCard key={r.id} request={r} requesterName={nameOf(r.requester_id)}>
-              <Row>
-                <Button title="Denegar" variant="secondary" style={{ flex: 1 }} loading={busyId === r.id} onPress={() => decide(r.id, false)} />
-                <Button title="Aprobar" style={{ flex: 1 }} loading={busyId === r.id} onPress={() => decide(r.id, true)} />
-              </Row>
-              <Button title="Más opciones" variant="ghost" onPress={() => router.push({ pathname: '/request/[id]', params: { id: r.id } })} />
-            </RequestCard>
-          ))}
-        </View>
-      )}
-
-      <Heading>Mi socio de confianza</Heading>
-      {myPartners.length === 0 && <Body muted>Nadie todavía. Invita a alguien con un código.</Body>}
-      {myPartners.map((p) => (
-        <Card key={p.id}>
-          <Row style={{ justifyContent: 'space-between' }}>
-            <Heading>{p.partner?.display_name}</Heading>
-            <Badge label={p.status === 'active' ? 'Activo' : 'Terminando (24 h)'} tone={p.status === 'active' ? 'success' : 'warning'} />
-          </Row>
-          {p.status === 'active' && <Button title="Terminar acuerdo" variant="ghost" onPress={() => confirmRevoke(p.id, false)} />}
-        </Card>
-      ))}
-
-      {!!data?.supervised.length && <Heading>A quién acompaño</Heading>}
-      {data?.supervised.map((p) => (
-        <Card key={p.id}>
-          <Row style={{ justifyContent: 'space-between' }}>
-            <Heading>{p.monitored?.display_name}</Heading>
-            {p.status === 'revoking' && <Badge label="Terminando" tone="warning" />}
-          </Row>
-          {(data.rulesBy[p.monitored_id] ?? []).map((r) => (
-            <Row key={r.id} style={{ justifyContent: 'space-between' }}>
-              <Body>
-                {r.name} · {formatMinutes(r.daily_limit_minutes)}
-              </Body>
-              <Button title="Editar" variant="ghost" style={{ minHeight: 36 }} onPress={() => router.push({ pathname: '/rules/[id]', params: { id: r.id } })} />
-            </Row>
-          ))}
-          {pinFor === p.id && (
-            <>
-              <Field label="PIN de socio (4–8 dígitos)" value={pin} onChangeText={setPin} keyboardType="number-pad" secureTextEntry maxLength={8} />
-              <Button title="Guardar PIN" onPress={() => savePin(p.id)} disabled={pin.length < 4} />
-            </>
-          )}
+      {data?.toDecide.map((r) => (
+        <View key={r.id} style={{ gap: space.md, paddingBottom: space.lg, borderBottomWidth: 1, borderBottomColor: c.line }}>
           <Row>
-            <Button title="PIN" variant="secondary" style={{ flex: 1 }} onPress={() => setPinFor(pinFor === p.id ? null : p.id)} />
-            <Button title="Dejar de acompañar" variant="ghost" style={{ flex: 2 }} onPress={() => confirmRevoke(p.id, true)} />
+            <Avatar name={nameOf(r.requester_id)} />
+            <Body muted>
+              {nameOf(r.requester_id)} · {timeAgo(r.created_at)}
+            </Body>
           </Row>
-        </Card>
+          <Text style={{ fontFamily: fonts.heading, fontSize: 24, lineHeight: 30, color: c.ink }}>
+            Quiere {r.minutes_requested} min más de {r.target_name ?? 'pantalla'}.
+          </Text>
+          {r.reason ? <Body muted>“{r.reason}”</Body> : null}
+          <Row>
+            <Button title="No" variant="secondary" style={{ flex: 1 }} loading={busyId === r.id} onPress={() => decide(r.id, false)} />
+            <Button title={`Darle ${r.minutes_requested} min`} style={{ flex: 2 }} loading={busyId === r.id} onPress={() => decide(r.id, true)} />
+          </Row>
+          <TextLink title="Darle otra cantidad o dejar una nota →" onPress={() => router.push({ pathname: '/request/[id]', params: { id: r.id } })} />
+        </View>
       ))}
 
-      <Card>
-        <Eyebrow>Conectar</Eyebrow>
-        {code ? (
-          <>
-            <Title style={{ letterSpacing: 6, textAlign: 'center' }}>{code}</Title>
-            <Button title="Compartir código" variant="secondary" onPress={() => Share.share({ message: `Mi código de Go Unplugged: ${code}` })} />
-          </>
-        ) : (
-          <>
-            <Button title="Invitar a mi socio" onPress={() => invite('monitored')} />
-            <Button title="Ofrecerme como socio" variant="secondary" onPress={() => invite('partner')} />
-          </>
+      {!!data?.supervised.length &&
+        data.supervised.map((p) => (
+          <Section key={p.id} title={`Acompañas a ${p.monitored?.display_name}${p.status === 'revoking' ? ' · termina en 24 h' : ''}`}>
+            {(data.rulesBy[p.monitored_id] ?? []).map((r) => (
+              <ListRow
+                key={r.id}
+                title={r.name}
+                subtitle={r.rule_targets.map((t) => t.display_name).join(', ')}
+                right={formatMinutes(r.daily_limit_minutes)}
+                chevron
+                onPress={() => router.push({ pathname: '/rules/[id]', params: { id: r.id } })}
+              />
+            ))}
+            <ListRow title="PIN de socio" subtitle="Para urgencias o para desinstalar" chevron onPress={() => setPinFor(pinFor === p.id ? null : p.id)}>
+              {pinFor === p.id && (
+                <View style={{ gap: space.sm }}>
+                  <Field label="4 a 8 dígitos" value={pin} onChangeText={setPin} keyboardType="number-pad" secureTextEntry maxLength={8} />
+                  <Button title="Guardar PIN" onPress={() => savePin(p.id)} disabled={pin.length < 4} />
+                </View>
+              )}
+            </ListRow>
+            <View style={{ paddingTop: space.md, paddingBottom: space.lg }}>
+              <TextLink title="Dejar de acompañar" color={c.danger} onPress={() => confirmRevoke(p.id, true)} />
+            </View>
+          </Section>
+        ))}
+
+      <Section title="Tu socio de confianza">
+        {myPartners.map((p) => (
+          <ListRow
+            key={p.id}
+            title={p.partner?.display_name ?? ''}
+            subtitle={p.status === 'active' ? 'Aprueba tu tiempo extra' : 'El acuerdo termina en 24 h'}
+            onPress={p.status === 'active' ? () => confirmRevoke(p.id, false) : undefined}
+          />
+        ))}
+        {myPartners.length === 0 && (
+          <View style={{ paddingTop: space.lg, gap: space.md }}>
+            {code ? (
+              <>
+                <Body muted>Pásale este código. Vale por 7 días.</Body>
+                <BigNumber size={44}>{code}</BigNumber>
+                <TextLink title="Compartir →" onPress={() => Share.share({ message: `Mi código de Go Unplugged: ${code}` })} />
+              </>
+            ) : (
+              <>
+                <Body muted>Alguien que te conozca y quiera ayudarte. Nunca verá tus chats ni publicaciones.</Body>
+                {data?.supervised.length ? (
+                  <TextLink title="Invitar a alguien con un código →" onPress={invite} />
+                ) : (
+                  <Button title="Invitar con un código" onPress={invite} />
+                )}
+              </>
+            )}
+          </View>
         )}
-        <Field label="¿Tienes un código?" value={inputCode} onChangeText={(t) => setInputCode(t.toUpperCase())} autoCapitalize="characters" maxLength={8} />
-        <Button title="Unirme" variant="secondary" onPress={join} disabled={inputCode.length !== 8} />
-      </Card>
+      </Section>
+
+      {joining ? (
+        <View style={{ gap: space.md }}>
+          <Field label="Código que te dieron" value={inputCode} onChangeText={(t) => setInputCode(t.toUpperCase())} autoCapitalize="characters" maxLength={8} />
+          <Button title="Unirme" variant="secondary" onPress={join} disabled={inputCode.length !== 8} />
+        </View>
+      ) : (
+        <TextLink title="Me dieron un código" color={c.inkSoft} onPress={() => setJoining(true)} />
+      )}
     </Screen>
   );
 }
