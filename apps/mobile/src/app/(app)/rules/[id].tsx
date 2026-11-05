@@ -5,7 +5,7 @@ import { Alert, Platform, Pressable } from 'react-native';
 import { AppBlocker, isNativeBlockerAvailable, type LaunchableApp } from '../../../../modules/app-blocker';
 import { Body, Button, Card, ChipPicker, ErrorText, Field, Heading, Row, Screen } from '../../../components/ui';
 import { useAsync } from '../../../hooks/useAsync';
-import { friendlyError } from '../../../lib/errors';
+import { errorCode, friendlyError } from '../../../lib/errors';
 import { DAY_LABELS, formatMinutes } from '../../../lib/format';
 import { useAuthed } from '../../../providers/SessionProvider';
 import {
@@ -63,7 +63,14 @@ export default function RuleDetail() {
       await reload();
       await resync();
     } catch (e) {
-      setError(friendlyError(e));
+      if (errorCode(e) === 'plan_app_limit') {
+        Alert.alert('Llegaste al tope de tu plan', 'El plan Gratis permite limitar hasta 3 apps.', [
+          { text: 'Ahora no', style: 'cancel' },
+          { text: 'Ver planes', onPress: () => router.push('/plans') },
+        ]);
+      } else {
+        setError(friendlyError(e));
+      }
     }
   }
 

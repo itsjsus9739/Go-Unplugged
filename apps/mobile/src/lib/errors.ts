@@ -23,6 +23,9 @@ const MESSAGES: Record<string, string> = {
   rule_relax_requires_partner: 'Para aflojar un límite necesitas la aprobación de tu socio.',
   invalid_pin: 'El PIN debe tener entre 4 y 8 dígitos.',
   too_many_attempts: 'Demasiados intentos. Espera unos minutos.',
+  plan_app_limit: 'Llegaste al máximo de apps de tu plan.',
+  trial_already_used: 'Ya usaste tu prueba gratis.',
+  invalid_plan: 'Ese plan no está disponible.',
 };
 
 export function errorCode(error: unknown): string | null {

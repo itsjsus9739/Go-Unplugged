@@ -1,7 +1,7 @@
 # Supabase — Go Unplugged
 
 > **Proyecto en uso:** `go unplugged` · ref `qvdtjteawqzoqbilnzeg` · región `us-east-2` ·
-> URL `https://qvdtjteawqzoqbilnzeg.supabase.co`. Las 4 migraciones de `migrations/` ya están aplicadas
+> URL `https://qvdtjteawqzoqbilnzeg.supabase.co`. Las migraciones de `migrations/` ya están aplicadas
 > (incluye RLS, Realtime y el job de pg_cron). Falta solo el paso 4 (Edge Function de push + webhook).
 
 ## Crear el proyecto y aplicar el esquema
@@ -55,6 +55,7 @@ PG_BIN=/usr/lib/postgresql/16/bin ./supabase/tests/run_local.sh
 | `20261104210018_rls.sql` | Helpers `is_partner_of` / `is_connected_to`, políticas RLS y grants por columna |
 | `20261104210126_functions.sql` | RPC de negocio, guardas «solo el socio afloja», avisos antimanipulación, mantenimiento |
 | `20261104210129_realtime_cron.sql` | Publicación Realtime y job de pg_cron |
+| `20261105155817_plans.sql` | Beneficios por plan (tope de apps, historial, cobertura Pareja/Familiar), `my_plan()`, prueba gratis de 7 días |
 
 Cambios futuros: siempre en una migración nueva (`npx supabase migration new <nombre>`), nunca editando las ya aplicadas.
 Después de cambiar el esquema: `cd apps/mobile && npm run gen:types`.
