@@ -58,6 +58,12 @@ select v::uuid, :'francisco', 'android', 'com.instagram.android', 'Instagram' fr
 insert into public.rule_targets (rule_id, user_id, platform, identifier, display_name)
 select v::uuid, :'francisco', 'android', 'com.zhiliaoapp.musically', 'TikTok' from pg_temp.ctx where k = 'rule';
 
+-- Agregar dos veces la misma app no falla ni duplica (la app usa ON CONFLICT DO NOTHING)
+insert into public.rule_targets (rule_id, user_id, platform, identifier, display_name)
+select v::uuid, :'francisco', 'android', 'com.instagram.android', 'Instagram' from pg_temp.ctx where k = 'rule'
+on conflict (rule_id, platform, identifier) do nothing;
+select pg_temp.assert((select count(*) from public.rule_targets where identifier = 'com.instagram.android') = 1, 'sin duplicados');
+
 -- No puede aceptar su propia invitación
 select pg_temp.expect_error(
   format('select public.accept_invitation(%L)', (select v from pg_temp.ctx where k = 'code')),

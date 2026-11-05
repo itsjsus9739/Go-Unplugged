@@ -29,6 +29,7 @@ export default function RuleDetail() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [showPicker, setShowPicker] = useState(false);
+  const [savingApp, setSavingApp] = useState<string | null>(null);
   const { data: apps } = useAsync<LaunchableApp[]>(
     () => (showPicker && Platform.OS !== 'ios' ? AppBlocker.getLaunchableApps() : Promise.resolve([])),
     [showPicker],
@@ -50,7 +51,8 @@ export default function RuleDetail() {
   }
 
   async function toggleApp(app: LaunchableApp) {
-    if (!rule) return;
+    if (!rule || savingApp) return; // evita el doble toque mientras se guarda
+    setSavingApp(app.identifier);
     setError(null);
     try {
       const existing = rule.rule_targets.find((t) => t.identifier === app.identifier);
@@ -71,6 +73,8 @@ export default function RuleDetail() {
       } else {
         setError(friendlyError(e));
       }
+    } finally {
+      setSavingApp(null);
     }
   }
 
@@ -184,7 +188,7 @@ export default function RuleDetail() {
                 <Row style={{ justifyContent: 'space-between', paddingVertical: space.xs }}>
                   <Body>{a.name}</Body>
                   <Body style={{ color: selected.has(a.identifier) ? c.primary : c.inkFaint }}>
-                    {selected.has(a.identifier) ? '✓' : '+'}
+                    {savingApp === a.identifier ? '…' : selected.has(a.identifier) ? '✓' : '+'}
                   </Body>
                 </Row>
               </Pressable>

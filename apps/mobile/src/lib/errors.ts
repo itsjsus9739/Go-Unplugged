@@ -37,6 +37,12 @@ export function friendlyError(error: unknown): string {
   const code = errorCode(error);
   if (code) return MESSAGES[code];
   const msg = (error as { message?: string } | null)?.message;
+  if (msg?.includes('row-level security') || msg?.includes('permission denied')) {
+    return 'No tienes permiso para hacer ese cambio.';
+  }
+  if (msg?.includes('Network request failed') || msg?.includes('Failed to fetch')) {
+    return 'Sin conexión. Revisa tu internet e intenta de nuevo.';
+  }
   return msg || 'Algo salió mal. Intenta de nuevo.';
 }
 
