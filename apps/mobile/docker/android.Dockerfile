@@ -40,7 +40,7 @@ WORKDIR /app
 
 # Dependencias primero (se cachea mientras package-lock.json no cambie)
 COPY package.json package-lock.json .npmrc ./
-RUN npm ci
+RUN --mount=type=cache,target=/root/.npm npm ci
 
 COPY . .
 
@@ -56,8 +56,12 @@ RUN npx expo prebuild -p android --no-install --clean
 # Solo arm64-v8a (casi todos los teléfonos actuales): compila ~4 veces más rápido.
 # Para un APK universal usa: --build-arg ABIS=armeabi-v7a,arm64-v8a,x86,x86_64
 ARG ABIS=arm64-v8a
-RUN cd android \
- && ./gradlew assembleRelease --no-daemon \
+# Las cachés (Gradle, NDK, CMake) sobreviven entre builds: la 2.ª vez no se vuelven a descargar.
+RUN --mount=type=cache,target=/root/.gradle \
+    --mount=type=cache,target=/opt/android-sdk/ndk \
+    --mount=type=cache,target=/opt/android-sdk/cmake \
+    cd android \
+ && ./gradlew assembleRelease --no-daemon --parallel \
       -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g" \
       -PreactNativeArchitectures=$ABIS
 
