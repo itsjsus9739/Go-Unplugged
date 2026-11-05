@@ -5,6 +5,7 @@ import { Text } from 'react-native';
 import { PermissionsPanel } from '../../../components/PermissionsPanel';
 import { Button, ErrorText, LineField, ListRow, Screen, Section, TextLink } from '../../../components/ui';
 import { useAsync } from '../../../hooks/useAsync';
+import { useReloadOnFocus } from '../../../hooks/useReloadOnFocus';
 import { friendlyError } from '../../../lib/errors';
 import { useAuthed } from '../../../providers/SessionProvider';
 import { signOut } from '../../../services/auth';
@@ -17,7 +18,8 @@ export default function Settings() {
   const c = useThemeColors();
   const [name, setName] = useState(profile?.display_name ?? '');
   const [error, setError] = useState<string | null>(null);
-  const { data: plan } = useAsync(() => getMyPlan(), [userId]);
+  const { data: plan, reload } = useAsync(() => getMyPlan(), [userId]);
+  useReloadOnFocus(reload);
 
   async function saveName() {
     try {

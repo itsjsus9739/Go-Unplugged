@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Body, Button, BigNumber, ListRow, Section, StatusDot, TextLink } from '../../../components/ui';
 import { useAsync } from '../../../hooks/useAsync';
+import { useReloadOnFocus } from '../../../hooks/useReloadOnFocus';
 import { useNow } from '../../../hooks/useNow';
 import { useRealtime } from '../../../hooks/useRealtime';
 import { clock, formatMinutes, shortDate, timeAgo, todayISODate } from '../../../lib/format';
@@ -31,6 +32,7 @@ export default function Today() {
     const usedBy = new Map((usage.data ?? []).map((u) => [u.identifier, u.minutes_used]));
     return { rules, grants, mine, toDecide, partnerships, usedBy };
   }, [userId]);
+  useReloadOnFocus(reload);
 
   useRealtime('extension_requests', reload);
   useRealtime('partnerships', reload);

@@ -25,7 +25,7 @@ export default function RuleDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { userId, device, resync } = useAuthed();
   const c = useThemeColors();
-  const { data: rule, reload } = useAsync(() => getRule(id), [id]);
+  const { data: rule, reload, error: loadError, loading } = useAsync(() => getRule(id), [id]);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [showPicker, setShowPicker] = useState(false);
@@ -122,7 +122,20 @@ export default function RuleDetail() {
     ]);
   }
 
-  if (!rule) return <Screen><Body muted>Cargando…</Body></Screen>;
+  if (!rule) {
+    return (
+      <Screen>
+        {loading && !loadError ? (
+          <Body muted>Cargando…</Body>
+        ) : (
+          <>
+            <Body muted>Este límite ya no existe. Puede que lo hayas borrado o que tu socio lo haya cambiado.</Body>
+            <Button title="Volver" variant="secondary" onPress={() => router.back()} />
+          </>
+        )}
+      </Screen>
+    );
+  }
 
   const filtered = (apps ?? []).filter((a) => a.name.toLowerCase().includes(search.toLowerCase()));
 

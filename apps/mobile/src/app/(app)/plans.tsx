@@ -3,6 +3,7 @@ import { Alert, Text, View } from 'react-native';
 
 import { Body, Button, ErrorText, Screen, StatusDot } from '../../components/ui';
 import { useAsync } from '../../hooks/useAsync';
+import { useReloadOnFocus } from '../../hooks/useReloadOnFocus';
 import { friendlyError } from '../../lib/errors';
 import { getMyPlan, listPlans, PLAN_LABEL, startTrial } from '../../services/plans';
 import { brand, fonts, space, useThemeColors } from '../../theme';
@@ -37,6 +38,7 @@ export default function Plans() {
     const [plans, mine] = await Promise.all([listPlans(), getMyPlan()]);
     return { plans, mine };
   }, []);
+  useReloadOnFocus(reload);
 
   async function choose(plan: Plan) {
     if (!data) return;

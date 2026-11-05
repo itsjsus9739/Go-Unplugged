@@ -16,6 +16,7 @@ import {
   TextLink,
 } from '../../../components/ui';
 import { useAsync } from '../../../hooks/useAsync';
+import { useReloadOnFocus } from '../../../hooks/useReloadOnFocus';
 import { useRealtime } from '../../../hooks/useRealtime';
 import { friendlyError } from '../../../lib/errors';
 import { formatMinutes, timeAgo } from '../../../lib/format';
@@ -50,6 +51,7 @@ export default function Partner() {
     );
     return { partnerships, toDecide, supervised, rulesBy };
   }, [userId]);
+  useReloadOnFocus(reload);
   useRealtime('extension_requests', reload);
   useRealtime('partnerships', reload);
 

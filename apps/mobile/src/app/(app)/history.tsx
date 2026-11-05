@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 
 import { Body, ListRow, Screen, Section, TextLink } from '../../components/ui';
 import { useAsync } from '../../hooks/useAsync';
+import { useReloadOnFocus } from '../../hooks/useReloadOnFocus';
 import { timeAgo } from '../../lib/format';
 import { supabase } from '../../lib/supabase';
 import { unwrap } from '../../lib/errors';
@@ -22,13 +23,14 @@ const STATUS: Record<RequestStatus, string> = {
 export default function History() {
   const { userId } = useAuthed();
   const c = useThemeColors();
-  const { data } = useAsync(async () => {
+  const { data, reload } = useAsync(async () => {
     const mine = await getMyPlan();
     const days = mine.plan.history_days;
     let q = supabase.from('extension_requests').select('*').order('created_at', { ascending: false }).limit(100);
     if (days) q = q.gte('created_at', new Date(Date.now() - days * 864e5).toISOString());
     return { rows: unwrap(await q), days };
   }, [userId]);
+  useReloadOnFocus(reload);
 
   const color = (s: RequestStatus) => (s === 'approved' ? brand.cyan : s === 'denied' ? brand.magenta : c.inkSoft);
 

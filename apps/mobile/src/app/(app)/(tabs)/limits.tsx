@@ -3,6 +3,7 @@ import { Text } from 'react-native';
 
 import { Body, ListRow, Screen, Section, TextLink } from '../../../components/ui';
 import { useAsync } from '../../../hooks/useAsync';
+import { useReloadOnFocus } from '../../../hooks/useReloadOnFocus';
 import { useRealtime } from '../../../hooks/useRealtime';
 import { DAY_LABELS, formatMinutes, hhmm } from '../../../lib/format';
 import { useAuthed } from '../../../providers/SessionProvider';
@@ -13,6 +14,7 @@ export default function Limits() {
   const { userId } = useAuthed();
   const c = useThemeColors();
   const { data: rules, reload } = useAsync(() => listRules(userId), [userId]);
+  useReloadOnFocus(reload);
   useRealtime('limit_rules', reload, `user_id=eq.${userId}`);
   useRealtime('rule_targets', reload, `user_id=eq.${userId}`);
 
