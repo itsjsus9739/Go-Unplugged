@@ -68,7 +68,7 @@ view active_grants = extension_requests aprobadas con grant_ends_at > now()
 | `extension_requests` | `time_extension`, `emergency` (autoaprobada con cupo), `rule_relax` (aflojar un límite: `payload` con los cambios), `disable_protection`. Al aprobar se fija `grant_starts_at`/`grant_ends_at`. Expira a los 30 min sin respuesta. |
 | `usage_daily` | Minutos por app y día (el socio ve tiempos, **nunca contenido**). |
 | `device_events` | `protection_disabled`, `permission_revoked`, `uninstall_attempt`, `limit_reached`… Los tres primeros avisan al socio automáticamente. |
-| `plans` / `subscriptions` | Catálogo (precios **ilustrativos**) y suscripción vigente; límites de personas por plan se validan al aceptar invitaciones. |
+| `plans` / `subscriptions` | Catálogo (precios **ilustrativos**: 0 / 4,99 / 7,99 / 12,99 USD) y suscripción vigente. Beneficios aplicados en la BD: personas que se acompañan y socios por plan (al aceptar invitación), tope de 3 apps en Gratis (trigger), historial de 7 días en Gratis, y Pareja/Familiar **cubren** a quienes el titular acompaña (`plan_tier_for`). `my_plan()` resume el plan; `start_trial()` da 7 días gratis una vez por usuario. |
 
 ## 4. Reglas de negocio (en la base de datos, no en la app)
 
@@ -109,6 +109,7 @@ El bloqueador nativo trabaja **offline** con la última configuración guardada 
 - [ ] Solicitar a Apple el entitlement *Family Controls (Distribution)*.
 - [ ] Declarar el uso de AccessibilityService en Google Play (formulario + divulgación destacada).
 - [ ] Extensiones iOS opcionales: `shield-config` (pantalla de bloqueo con la marca) y `DeviceActivityReport` (minutos de uso en iOS).
-- [ ] Pagos (RevenueCat) y precios reales.
+- [ ] Pagos con Google Play (RevenueCat → webhook que escribe `subscriptions`). Hoy solo existe la prueba gratis de 7 días.
+- [ ] Reportes semanales (Pareja/Familiar) y panel familiar: el plan ya los marca, falta construirlos.
 - [ ] Protección contra desinstalación en Android (Device Admin) usando el PIN del socio.
 - [ ] Login con Apple/Google.

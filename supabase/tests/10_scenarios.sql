@@ -58,6 +58,12 @@ select v::uuid, :'francisco', 'android', 'com.instagram.android', 'Instagram' fr
 insert into public.rule_targets (rule_id, user_id, platform, identifier, display_name)
 select v::uuid, :'francisco', 'android', 'com.zhiliaoapp.musically', 'TikTok' from pg_temp.ctx where k = 'rule';
 
+-- Agregar dos veces la misma app no falla ni duplica (la app usa ON CONFLICT DO NOTHING)
+insert into public.rule_targets (rule_id, user_id, platform, identifier, display_name)
+select v::uuid, :'francisco', 'android', 'com.instagram.android', 'Instagram' from pg_temp.ctx where k = 'rule'
+on conflict (rule_id, platform, identifier) do nothing;
+select pg_temp.assert((select count(*) from public.rule_targets where identifier = 'com.instagram.android') = 1, 'sin duplicados');
+
 -- No puede aceptar su propia invitación
 select pg_temp.expect_error(
   format('select public.accept_invitation(%L)', (select v from pg_temp.ctx where k = 'code')),
@@ -227,3 +233,45 @@ select pg_temp.expect_error('update public.notifications set title = ''x''', 'pe
 select pg_temp.expect_error('update public.profiles set id = gen_random_uuid()', 'permission denied');
 select pg_temp.expect_error('select public.run_maintenance()', 'permission denied');
 reset role;
+
+-- ---------------------------------------------------------------------------
+-- 8. Planes: tope de apps en Gratis, prueba gratis y cobertura Pareja/Familiar
+-- ---------------------------------------------------------------------------
+set role authenticated;
+select set_config('request.jwt.claim.sub', :'francisco', false);
+select pg_temp.assert((public.my_plan() ->> 'tier') = 'free', 'Francisco está en Gratis');
+select pg_temp.assert((public.my_plan() ->> 'apps_used')::int = 1, '1 app usada');
+
+insert into public.rule_targets (rule_id, user_id, platform, identifier, display_name)
+select id, :'francisco', 'android', 'com.twitter.android', 'X' from public.limit_rules where user_id = :'francisco';
+insert into public.rule_targets (rule_id, user_id, platform, identifier, display_name)
+select id, :'francisco', 'android', 'com.facebook.katana', 'Facebook' from public.limit_rules where user_id = :'francisco';
+select pg_temp.expect_error(
+  format('insert into public.rule_targets (rule_id, user_id, platform, identifier, display_name) values (%L, %L, ''android'', ''com.whatsapp'', ''WhatsApp'')',
+         (select id from public.limit_rules where user_id = :'francisco'), :'francisco'),
+  'plan_app_limit');
+
+select pg_temp.expect_error('select public.start_trial(''free'')', 'invalid_plan');
+select pg_temp.assert((public.start_trial('individual') ->> 'source') = 'trial', 'prueba activa');
+select pg_temp.expect_error('select public.start_trial(''pareja'')', 'trial_already_used');
+insert into public.rule_targets (rule_id, user_id, platform, identifier, display_name)
+select id, :'francisco', 'android', 'com.whatsapp', 'WhatsApp' from public.limit_rules where user_id = :'francisco';
+select pg_temp.assert((public.my_plan() ->> 'apps_used')::int = 4, 'Individual: 4 apps');
+
+-- Cobertura: Mariana paga Pareja y acompaña al intruso → el intruso hereda apps ilimitadas.
+reset role;
+insert into public.subscriptions (user_id, tier, status) values (:'mariana', 'pareja', 'active');
+insert into public.partnerships (monitored_id, partner_id) values (:'intruso', :'mariana');
+set role authenticated;
+select set_config('request.jwt.claim.sub', :'intruso', false);
+insert into public.limit_rules (user_id, name) values (:'intruso', 'Todo');
+insert into public.rule_targets (rule_id, user_id, platform, identifier, display_name)
+select r.id, :'intruso', 'android', a, a from public.limit_rules r, unnest(array['a1','a2','a3','a4','a5']) a where r.user_id = :'intruso';
+select pg_temp.assert((public.my_plan() ->> 'source') = 'partner', 'cubierto por el plan de su socia');
+select pg_temp.assert((public.my_plan() ->> 'apps_used')::int = 5, 'Pareja cubre apps ilimitadas');
+
+-- Vencimiento de la prueba
+reset role;
+update public.subscriptions set current_period_end = now() - interval '1 minute' where user_id = :'francisco';
+select public.run_maintenance();
+select pg_temp.assert((select status from public.subscriptions where user_id = :'francisco') = 'expired', 'prueba vencida');

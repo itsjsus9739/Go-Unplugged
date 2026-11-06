@@ -249,3 +249,160 @@ export function Loading() {
     </View>
   );
 }
+
+/* ---------------------------------------------------------------------------
+ * Piezas "editoriales": menos tarjetas, más listas y tipografía.
+ * ------------------------------------------------------------------------- */
+
+/** Número grande (minutos, cuenta regresiva, código). */
+export function BigNumber({ children, size = 64, color }: { children: ReactNode; size?: number; color?: string }) {
+  const c = useThemeColors();
+  return (
+    <Text
+      style={{
+        fontFamily: fonts.headingHeavy,
+        fontSize: size,
+        lineHeight: size * 1.08,
+        letterSpacing: -size * 0.02,
+        fontVariant: ['tabular-nums'],
+        color: color ?? c.ink,
+      }}
+    >
+      {children}
+    </Text>
+  );
+}
+
+/** Sección sin caja: título en minúscula + filas separadas por líneas finas. */
+export function Section({ title, action, children }: { title: string; action?: ReactNode; children: ReactNode }) {
+  const c = useThemeColors();
+  return (
+    <View style={{ gap: 0 }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', paddingBottom: space.sm, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.line }}>
+        <Text style={{ fontFamily: fonts.bodySemi, fontSize: 13, color: c.inkFaint }}>{title}</Text>
+        {action}
+      </View>
+      {children}
+    </View>
+  );
+}
+
+export function ListRow({
+  title,
+  subtitle,
+  right,
+  rightColor,
+  onPress,
+  chevron,
+  children,
+}: {
+  title: string;
+  subtitle?: string | null;
+  right?: string;
+  rightColor?: string;
+  onPress?: () => void;
+  chevron?: boolean;
+  children?: ReactNode;
+}) {
+  const c = useThemeColors();
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={!onPress}
+      style={({ pressed }) => ({
+        paddingVertical: space.md + 2,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: c.line,
+        opacity: pressed ? 0.6 : 1,
+        gap: space.sm,
+      })}
+    >
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.md }}>
+        <View style={{ flex: 1, gap: 2 }}>
+          <Text style={{ fontFamily: fonts.bodySemi, fontSize: 16, color: c.ink }}>{title}</Text>
+          {subtitle ? <Text style={{ fontFamily: fonts.body, fontSize: 14, color: c.inkSoft }}>{subtitle}</Text> : null}
+        </View>
+        {right ? (
+          <Text style={{ fontFamily: fonts.bodySemi, fontSize: 15, color: rightColor ?? c.inkSoft, fontVariant: ['tabular-nums'] }}>{right}</Text>
+        ) : null}
+        {chevron ? <Text style={{ fontSize: 20, color: c.inkFaint, marginLeft: -4 }}>›</Text> : null}
+      </View>
+      {children}
+    </Pressable>
+  );
+}
+
+/** Punto de color + texto (reemplaza las pastillas con borde). */
+export function StatusDot({ label, color }: { label: string; color: string }) {
+  const c = useThemeColors();
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+      <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: color }} />
+      <Text style={{ fontFamily: fonts.bodyMedium, fontSize: 13, color: c.inkSoft }}>{label}</Text>
+    </View>
+  );
+}
+
+export function TextLink({ title, onPress, color }: { title: string; onPress?: () => void; color?: string }) {
+  return (
+    <Pressable onPress={onPress} hitSlop={10} style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1, paddingVertical: space.xs })}>
+      <Text style={{ fontFamily: fonts.bodySemi, fontSize: 15, color: color ?? brand.indigoLight }}>{title}</Text>
+    </Pressable>
+  );
+}
+
+export function Avatar({ name, size = 36 }: { name?: string | null; size?: number }) {
+  return (
+    <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: brand.indigo, alignItems: 'center', justifyContent: 'center' }}>
+      <Text style={{ fontFamily: fonts.heading, fontSize: size * 0.42, color: '#fff' }}>{(name ?? '?').slice(0, 1).toUpperCase()}</Text>
+    </View>
+  );
+}
+
+/** Control segmentado (una sola barra) para elegir minutos. */
+export function Segmented<T extends string | number>({
+  options,
+  value,
+  onChange,
+  format = (v) => String(v),
+}: {
+  options: T[];
+  value: T;
+  onChange: (v: T) => void;
+  format?: (v: T) => string;
+}) {
+  const c = useThemeColors();
+  return (
+    <View style={{ flexDirection: 'row', backgroundColor: c.bgRaised2, borderRadius: radius.md, padding: 3 }}>
+      {options.map((o) => {
+        const active = o === value;
+        return (
+          <Pressable
+            key={String(o)}
+            onPress={() => onChange(o)}
+            accessibilityState={{ selected: active }}
+            style={{ flex: 1, paddingVertical: space.sm + 2, borderRadius: radius.sm, alignItems: 'center', backgroundColor: active ? c.primary : 'transparent' }}
+          >
+            <Text style={{ fontFamily: fonts.bodySemi, fontSize: 15, color: active ? c.onPrimary : c.inkSoft, fontVariant: ['tabular-nums'] }}>{format(o)}</Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
+/** Campo sin caja, solo línea inferior. */
+export function LineField(props: TextInputProps & { label: string }) {
+  const c = useThemeColors();
+  const { label, ...rest } = props;
+  return (
+    <View style={{ gap: 2 }}>
+      <Text style={{ fontFamily: fonts.bodyMedium, fontSize: 13, color: c.inkFaint }}>{label}</Text>
+      <TextInput
+        placeholderTextColor={c.inkFaint}
+        {...rest}
+        style={[{ borderBottomWidth: 1, borderBottomColor: c.line, color: c.ink, fontFamily: fonts.body, fontSize: 17, paddingVertical: space.sm }, rest.style]}
+      />
+    </View>
+  );
+}

@@ -36,6 +36,28 @@ export type Plan = {
   features: Json;
   is_public: boolean;
   sort_order: number;
+  /** null = ilimitadas */
+  max_apps: number | null;
+  /** null = historial completo */
+  history_days: number | null;
+  weekly_reports: boolean;
+  family_panel: boolean;
+  /** El plan cubre a las personas que el titular acompaña (Pareja/Familiar). */
+  covers_partners: boolean;
+};
+
+/** Resultado de la RPC my_plan(). */
+export type MyPlan = {
+  tier: PlanTier;
+  own_tier: PlanTier;
+  /** free | own | trial | partner (cubierto por el plan de un socio) */
+  source: 'free' | 'own' | 'trial' | 'partner';
+  status: SubscriptionStatus | null;
+  provider: string | null;
+  current_period_end: Timestamp | null;
+  trial_available: boolean;
+  apps_used: number;
+  plan: Plan;
 };
 
 export type Profile = {
@@ -255,6 +277,8 @@ export type Database = {
         Returns: ExtensionRequest;
       };
       cancel_request: { Args: { p_request_id: string }; Returns: ExtensionRequest };
+      my_plan: { Args: Record<string, never>; Returns: Json };
+      start_trial: { Args: { p_tier: PlanTier }; Returns: Json };
       is_partner_of: { Args: { p_monitored: string }; Returns: boolean };
       has_active_partner: { Args: { p_user: string }; Returns: boolean };
     };
