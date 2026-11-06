@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<style>
+  @font-face { font-family: Poppins; font-weight: 700; src: url(Poppins_700Bold.ttf); }
+  @font-face { font-family: Poppins; font-weight: 800; src: url(Poppins_800ExtraBold.ttf); }
+  @font-face { font-family: Inter; font-weight: 400; src: url(Inter_400Regular.ttf); }
+  @font-face { font-family: Inter; font-weight: 500; src: url(Inter_500Medium.ttf); }
+  @font-face { font-family: Inter; font-weight: 600; src: url(Inter_600SemiBold.ttf); }
+  :root { --indigo:#3B34D0; --indigo2:#6C64FF; --black:#08090B; --raised:#101218; --line:#212330; --ink:#fff; --soft:#AFB2BE; --faint:#6F7280; --cyan:#47CFCB; --magenta:#DA6997; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { width:1920px; height:1080px; overflow:hidden; background:var(--black); font-family:Inter; color:var(--ink); }
+  .scene { position:absolute; inset:0; opacity:0; }
+  .h { font-family:Poppins; font-weight:700; letter-spacing:-0.01em; }
+  .label { font-family:Inter; font-weight:600; letter-spacing:.14em; text-transform:uppercase; font-size:22px; color:var(--faint); }
+  .phone { position:absolute; width:380px; height:822px; border-radius:54px; background:#000; border:3px solid #2a2d3a; padding:12px; box-shadow:0 40px 120px rgba(0,0,0,.6); }
+  .phone img { width:100%; height:100%; border-radius:42px; display:block; object-fit:cover; object-position:top; }
+  .chip { display:inline-block; padding:10px 22px; border-radius:999px; font-weight:600; font-size:22px; }
+  /* Planes */
+  .plans { position:absolute; left:110px; right:110px; top:250px; display:flex; gap:28px; }
+  .plan { flex:1; background:var(--raised); border:1px solid var(--line); border-radius:28px; padding:40px 34px; height:560px; display:flex; flex-direction:column; gap:18px; }
+  .plan.hot { background:var(--indigo); border-color:var(--indigo); }
+  .plan .name { font-family:Poppins; font-weight:700; font-size:38px; }
+  .plan .price { font-family:Poppins; font-weight:800; font-size:64px; line-height:1; }
+  .plan .price small { font-family:Inter; font-weight:500; font-size:22px; color:var(--soft); margin-left:6px; }
+  .plan.hot .price small, .plan.hot li { color:rgba(255,255,255,.85); }
+  .plan ul { list-style:none; display:flex; flex-direction:column; gap:14px; margin-top:8px; }
+  .plan li { font-size:24px; color:var(--soft); line-height:1.3; padding-left:30px; position:relative; }
+  .plan li::before { content:''; position:absolute; left:0; top:12px; width:12px; height:12px; border-radius:6px; background:var(--cyan); }
+  .plan.hot li::before { background:#fff; }
+  .plan .badge { align-self:flex-start; background:#fff; color:var(--indigo); font-weight:700; font-size:18px; padding:6px 14px; border-radius:999px; letter-spacing:.06em; text-transform:uppercase; }
+  .check { display:flex; gap:22px; align-items:flex-start; font-size:34px; line-height:1.35; }
+  .check i { flex:none; width:40px; height:40px; border-radius:20px; background:var(--cyan); margin-top:4px; position:relative; }
+  .check i::after { content:''; position:absolute; left:14px; top:8px; width:9px; height:17px; border:solid var(--black); border-width:0 4px 4px 0; transform:rotate(45deg); }
+  .step { position:absolute; display:flex; gap:20px; align-items:baseline; }
+  .step b { font-family:Inter; font-weight:600; color:var(--indigo2); font-size:26px; letter-spacing:.08em; }
+  .step span { font-family:Poppins; font-weight:700; font-size:34px; }
+</style>
+</head>
+<body>
+
+<!-- 1. Problema -->
+<section class="scene" id="s1">
+  <div class="label" id="s1l" style="position:absolute;top:150px;width:100%;text-align:center">Límite diario · Redes sociales</div>
+  <div class="h" id="s1c" style="position:absolute;top:250px;width:100%;text-align:center;font-weight:800;font-size:300px;line-height:1;font-variant-numeric:tabular-nums">15:00</div>
+  <div class="h" id="s1a" style="position:absolute;top:660px;width:100%;text-align:center;font-size:76px">Te pones un límite.</div>
+  <div class="h" id="s1b" style="position:absolute;top:660px;width:100%;text-align:center;font-size:76px;color:var(--magenta)">Y te lo saltas tú mismo.</div>
+</section>
+
+<!-- 2. Insight -->
+<section class="scene" id="s2" style="background:var(--indigo)">
+  <div style="position:absolute;left:160px;top:250px">
+    <div class="h" id="s2a" style="font-size:132px;line-height:1.05">La fuerza de voluntad</div>
+    <div class="h" id="s2b" style="font-size:132px;line-height:1.05">no basta.</div>
+    <div id="s2c" style="font-size:40px;margin-top:50px;color:rgba(255,255,255,.85);max-width:1300px;line-height:1.4">El problema no es saber qué distrae. Es intentar controlarlo solo.</div>
+  </div>
+</section>
+
+<!-- 3. Cómo funciona -->
+<section class="scene" id="s3">
+  <div class="h" id="s3t" style="position:absolute;left:120px;top:120px;font-size:72px;line-height:1.1;width:820px">La decisión sale de tu teléfono.</div>
+  <div id="s3s" style="position:absolute;left:120px;top:330px;font-size:34px;color:var(--soft);width:760px;line-height:1.45">Alguien de confianza aprueba cada minuto extra. Tú no puedes saltarte el límite solo.</div>
+  <div class="step" id="st1" style="left:120px;top:560px"><b>01</b><span>Se agota tu tiempo</span></div>
+  <div class="step" id="st2" style="left:120px;top:650px"><b>02</b><span>Pides una extensión</span></div>
+  <div class="step" id="st3" style="left:120px;top:740px"><b>03</b><span>Tu socio aprueba o deniega</span></div>
+  <div id="s3priv" style="position:absolute;left:120px;top:880px;font-size:26px;color:var(--faint)">Tu socio ve tiempos y peticiones. Nunca tus chats ni publicaciones.</div>
+
+  <div class="phone" id="p1" style="left:1000px;top:130px"><img id="p1img" src="img/08-bloqueo.png"></div>
+  <div class="phone" id="p2" style="left:1430px;top:130px"><img src="img/09-socio-por-decidir.png"></div>
+  <div class="label" id="p1l" style="position:absolute;left:1000px;top:975px;width:380px;text-align:center;color:var(--soft)">Tú</div>
+  <div class="label" id="p2l" style="position:absolute;left:1430px;top:975px;width:380px;text-align:center;color:var(--soft)">Tu socio</div>
+  <div class="chip" id="notif" style="position:absolute;top:470px;left:1200px;background:#fff;color:var(--black);box-shadow:0 20px 50px rgba(0,0,0,.5)">🔔 Instagram · +15 min</div>
+</section>
+
+<!-- 4. Planes -->
+<section class="scene" id="s4">
+  <div class="h" id="s4t" style="position:absolute;left:110px;top:90px;font-size:72px">Un plan para cada acuerdo</div>
+  <div id="s4s" style="position:absolute;left:112px;top:185px;font-size:30px;color:var(--soft)">Todos incluyen bloqueo por app y sincronización en tiempo real.</div>
+  <div class="plans">
+    <div class="plan" id="pl1">
+      <div class="name">Gratis</div>
+      <div class="price">$0</div>
+      <ul><li>1 socio de confianza</li><li>Hasta 3 apps limitadas</li><li>Historial de 7 días</li></ul>
+    </div>
+    <div class="plan" id="pl2">
+      <div class="name">Individual</div>
+      <div class="price">$4,99<small>USD/mes</small></div>
+      <ul><li>1 persona acompañada</li><li>Apps ilimitadas</li><li>Historial completo</li></ul>
+    </div>
+    <div class="plan hot" id="pl3">
+      <div class="badge">El más elegido</div>
+      <div class="name">Pareja</div>
+      <div class="price">$7,99<small>USD/mes</small></div>
+      <ul><li>2 personas, control cruzado</li><li>Cada uno cuida los límites del otro</li><li>Apps ilimitadas</li><li>Reportes semanales</li></ul>
+    </div>
+    <div class="plan" id="pl4">
+      <div class="name">Familiar</div>
+      <div class="price">$12,99<small>USD/mes</small></div>
+      <ul><li>Hasta 6 personas</li><li>Un socio administrador</li><li>Apps ilimitadas</li><li>Panel familiar</li></ul>
+    </div>
+  </div>
+  <div id="s4n" style="position:absolute;left:110px;right:110px;top:860px;font-size:32px;text-align:center;color:var(--ink)">
+    En <b style="color:var(--indigo2)">Pareja</b> y <b style="color:var(--indigo2)">Familiar</b> paga uno solo: el plan cubre a todas las personas que acompaña.
+  </div>
+</section>
+
+<!-- 5. Pago -->
+<section class="scene" id="s5">
+  <div style="position:absolute;left:140px;top:150px;width:1000px">
+    <div class="label" id="s5l" style="color:var(--cyan)">Cómo se paga</div>
+    <div class="h" id="s5t" style="font-size:96px;line-height:1.05;margin-top:20px">Empieza gratis.<br>Paga solo si te sirve.</div>
+    <div style="margin-top:60px;display:flex;flex-direction:column;gap:30px">
+      <div class="check" id="c1"><i></i><span><b>7 días gratis</b> de cualquier plan, sin tarjeta.</span></div>
+      <div class="check" id="c2"><i></i><span>Suscripción <b>mensual</b> desde la app, con tu cuenta de <b>Google Play</b>.</span></div>
+      <div class="check" id="c3"><i></i><span>Sube, baja o <b>cancela cuando quieras</b>.</span></div>
+    </div>
+  </div>
+  <div class="phone" id="p3" style="left:1380px;top:130px"><img src="img/14-planes.png"></div>
+</section>
+
+<!-- 6. Cierre -->
+<section class="scene" id="s6">
+  <img id="logo" src="img/logo.png" style="position:absolute;left:50%;top:250px;width:720px;transform:translateX(-50%)">
+  <div class="h" id="s6t" style="position:absolute;top:560px;width:100%;text-align:center;font-size:84px">Recupera tu tiempo, juntos.</div>
+  <div class="label" id="s6p" style="position:absolute;top:690px;width:100%;text-align:center;color:var(--soft);letter-spacing:.3em">Un límite · Un acuerdo · Más tiempo</div>
+  <div id="s6c" style="position:absolute;top:800px;width:100%;text-align:center">
+    <span class="chip" style="background:var(--indigo);font-size:30px;padding:16px 36px">Pruébalo aquí en el stand →</span>
+  </div>
+  <div id="s6e" style="position:absolute;bottom:60px;width:100%;text-align:center;font-size:22px;color:var(--faint)">Jesús Tello · Sara Duarte · Marco Moreno — UNAB</div>
+</section>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const clamp = (x) => Math.max(0, Math.min(1, x));
+  const ease = (x) => 1 - Math.pow(1 - clamp(x), 3);
+  const p = (t, a, b) => ease((t - a) / (b - a));
+  const scene = (t, a, b, f = 0.45) => Math.min(p(t, a, a + f), 1 - p(t, b - f, b));
+  // entra con subida suave
+  function rise(id, t, a, d = 0.6, dy = 40) {
+    const k = p(t, a, a + d); const el = $(id);
+    el.style.opacity = k; el.style.translate = `0 ${(1 - k) * dy}px`;
+  }
+
+  window.render = function (t) {
+    // 1. Problema (0–5.2)
+    $('s1').style.opacity = scene(t, 0, 5.2);
+    const secs = Math.round(900 * (1 - Math.pow(clamp((t - 0.5) / 1.9), 1.6)));
+    $('s1c').textContent = `${String(Math.floor(secs / 60)).padStart(2, '0')}:${String(secs % 60).padStart(2, '0')}`;
+    $('s1c').style.color = t >= 2.4 ? 'var(--magenta)' : '#fff';
+    $('s1c').style.scale = t >= 2.4 ? 1 + 0.05 * (1 - p(t, 2.4, 2.8)) : 1;
+    rise('s1l', t, 0.1);
+    rise('s1a', t, 2.6); $('s1a').style.opacity = Math.min($('s1a').style.opacity, 1 - p(t, 3.6, 3.9));
+    rise('s1b', t, 3.9);
+
+    // 2. Insight (5–9.6)
+    $('s2').style.opacity = scene(t, 5.0, 9.6);
+    rise('s2a', t, 5.3, 0.6, 60); rise('s2b', t, 5.7, 0.6, 60); rise('s2c', t, 6.6);
+
+    // 3. Cómo funciona (9.4–22)
+    $('s3').style.opacity = scene(t, 9.4, 22);
+    rise('s3t', t, 9.7); rise('s3s', t, 10.3);
+    rise('st1', t, 11.0, 0.5, 20); rise('st2', t, 13.2, 0.5, 20); rise('st3', t, 16.2, 0.5, 20);
+    rise('s3priv', t, 18.4, 0.6, 10);
+    rise('p1', t, 10.0, 0.8, 80); rise('p1l', t, 10.6);
+    rise('p2', t, 13.5, 0.8, 80); rise('p2l', t, 14.1);
+    // Notificación viaja del teléfono del usuario al del socio
+    const n = p(t, 13.4, 14.6);
+    $('notif').style.opacity = t < 13.2 ? 0 : (t < 16.0 ? 1 : 1 - p(t, 16.0, 16.4));
+    $('notif').style.left = `${1060 + n * 430}px`;
+    $('notif').style.top = `${470 - Math.sin(n * Math.PI) * 120}px`;
+    // Después de la petición, el teléfono del usuario muestra "Le preguntamos a Mariana"
+    $('p1img').src = t >= 13.6 ? 'img/13-bloqueo-enviado.png' : 'img/08-bloqueo.png';
+
+    // 4. Planes (21.8–36.4)
+    $('s4').style.opacity = scene(t, 21.8, 36.4);
+    rise('s4t', t, 22.1); rise('s4s', t, 22.6);
+    rise('pl1', t, 23.4, 0.7, 70); rise('pl2', t, 25.2, 0.7, 70); rise('pl3', t, 27.0, 0.7, 70); rise('pl4', t, 29.2, 0.7, 70);
+    $('pl3').style.scale = t > 27.4 ? 1 + 0.03 * p(t, 27.4, 28.0) : 1;
+    rise('s4n', t, 31.4, 0.7, 20);
+
+    // 5. Pago (36.2–43.6)
+    $('s5').style.opacity = scene(t, 36.2, 43.6);
+    rise('s5l', t, 36.4); rise('s5t', t, 36.6, 0.7, 50);
+    rise('c1', t, 37.8, 0.5, 20); rise('c2', t, 38.8, 0.5, 20); rise('c3', t, 39.8, 0.5, 20);
+    rise('p3', t, 36.8, 0.9, 90);
+
+    // 6. Cierre (43.4–49)
+    $('s6').style.opacity = scene(t, 43.4, 50, 0.45);
+    rise('logo', t, 43.7, 0.8, 30); $('logo').style.translate = `-50% ${(1 - p(t, 43.7, 44.5)) * 30}px`;
+    rise('s6t', t, 44.5); rise('s6p', t, 45.2); rise('s6c', t, 45.9, 0.6, 20); rise('s6e', t, 46.4, 0.6, 10);
+  };
+  window.render(0);
+</script>
+</body>
+</html>
