@@ -14,7 +14,9 @@
       "supportsTablet": false,
       "entitlements": {
         "com.apple.developer.family-controls": true,
-        "com.apple.security.application-groups": ["group.com.gounplugged.app"]
+        "com.apple.security.application-groups": [
+          "group.com.gounplugged.app"
+        ]
       },
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
@@ -29,7 +31,9 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "permissions": ["android.permission.POST_NOTIFICATIONS"],
+      "permissions": [
+        "android.permission.POST_NOTIFICATIONS"
+      ],
       "predictiveBackGestureEnabled": false
     },
     "web": {
@@ -57,8 +61,12 @@
       [
         "expo-build-properties",
         {
-          "android": { "minSdkVersion": 29 },
-          "ios": { "deploymentTarget": "16.4" }
+          "android": {
+            "minSdkVersion": 29
+          },
+          "ios": {
+            "deploymentTarget": "16.4"
+          }
         }
       ],
       "@bacons/apple-targets"
@@ -67,7 +75,43 @@
       "typedRoutes": true
     },
     "extra": {
-      "eas": {}
-    }
+      "eas": {
+        "build": {
+          "experimental": {
+            "ios": {
+              "appExtensions": [
+                {
+                  "bundleIdentifier": "com.gounplugged.app.device-activity-monitor",
+                  "targetName": "GoUnpluggedMonitor",
+                  "entitlements": {
+                    "com.apple.developer.family-controls": true,
+                    "com.apple.security.application-groups": [
+                      "group.com.gounplugged.app"
+                    ]
+                  }
+                },
+                {
+                  "bundleIdentifier": "com.gounplugged.app.device-activity-monitor",
+                  "targetName": "GoUnpluggedMonitor",
+                  "entitlements": {
+                    "com.apple.developer.family-controls": true,
+                    "com.apple.security.application-groups": [
+                      "group.com.gounplugged.app"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "projectId": "092bffe3-7193-4589-9b20-6b01f5d2c2de"
+      },
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      }
+    },
+    "owner": "itsjesus"
   }
 }

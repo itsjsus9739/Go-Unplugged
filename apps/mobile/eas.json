@@ -7,17 +7,40 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "android": { "buildType": "apk" },
-      "env": { "APP_VARIANT": "development" }
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "APP_VARIANT": "development",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://qvdtjteawqzoqbilnzeg.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_6yhOiYlvLFZ9rDyZZu0IUw_lNvjw4u9"
+      },
+      "node": "22.14.0"
     },
     "preview": {
       "distribution": "internal",
-      "android": { "buildType": "apk" },
-      "ios": { "simulator": false }
+      "android": {
+        "buildType": "apk"
+      },
+      "ios": {
+        "simulator": false
+      },
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://qvdtjteawqzoqbilnzeg.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_6yhOiYlvLFZ9rDyZZu0IUw_lNvjw4u9"
+      },
+      "node": "22.14.0"
     },
     "production": {
-      "android": { "buildType": "app-bundle" },
-      "autoIncrement": true
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://qvdtjteawqzoqbilnzeg.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_6yhOiYlvLFZ9rDyZZu0IUw_lNvjw4u9"
+      },
+      "node": "22.14.0"
     }
   },
   "submit": {

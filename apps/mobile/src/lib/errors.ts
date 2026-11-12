@@ -23,6 +23,9 @@ const MESSAGES: Record<string, string> = {
   rule_relax_requires_partner: 'Para aflojar un límite necesitas la aprobación de tu socio.',
   invalid_pin: 'El PIN debe tener entre 4 y 8 dígitos.',
   too_many_attempts: 'Demasiados intentos. Espera unos minutos.',
+  plan_app_limit: 'Llegaste al máximo de apps de tu plan.',
+  trial_already_used: 'Ya usaste tu prueba gratis.',
+  invalid_plan: 'Ese plan no está disponible.',
 };
 
 export function errorCode(error: unknown): string | null {
@@ -34,6 +37,12 @@ export function friendlyError(error: unknown): string {
   const code = errorCode(error);
   if (code) return MESSAGES[code];
   const msg = (error as { message?: string } | null)?.message;
+  if (msg?.includes('row-level security') || msg?.includes('permission denied')) {
+    return 'No tienes permiso para hacer ese cambio.';
+  }
+  if (msg?.includes('Network request failed') || msg?.includes('Failed to fetch')) {
+    return 'Sin conexión. Revisa tu internet e intenta de nuevo.';
+  }
   return msg || 'Algo salió mal. Intenta de nuevo.';
 }
 

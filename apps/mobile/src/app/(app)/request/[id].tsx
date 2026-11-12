@@ -13,14 +13,27 @@ import { cancelRequest, decideRequest, getRequest } from '../../../services/requ
 export default function RequestDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { userId } = useAuthed();
-  const { data: req, reload } = useAsync(() => getRequest(id), [id]);
+  const { data: req, reload, error: loadError, loading } = useAsync(() => getRequest(id), [id]);
   useRealtime('extension_requests', reload, `id=eq.${id}`);
   const [minutes, setMinutes] = useState<number | null>(null);
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (!req) return <Screen><Body muted>Cargando…</Body></Screen>;
+  if (!req) {
+    return (
+      <Screen>
+        {loading && !loadError ? (
+          <Body muted>Cargando…</Body>
+        ) : (
+          <>
+            <Body muted>Esta petición ya no existe.</Body>
+            <Button title="Volver" variant="secondary" onPress={() => router.back()} />
+          </>
+        )}
+      </Screen>
+    );
+  }
 
   const mine = req.requester_id === userId;
   const pending = req.status === 'pending';

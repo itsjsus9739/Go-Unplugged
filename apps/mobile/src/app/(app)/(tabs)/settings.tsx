@@ -1,22 +1,25 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
+import { Text } from 'react-native';
 
 import { PermissionsPanel } from '../../../components/PermissionsPanel';
-import { Badge, Body, Button, Card, ErrorText, Field, Heading, Row, Screen } from '../../../components/ui';
+import { Button, ErrorText, LineField, ListRow, Screen, Section, TextLink } from '../../../components/ui';
 import { useAsync } from '../../../hooks/useAsync';
+import { useReloadOnFocus } from '../../../hooks/useReloadOnFocus';
 import { friendlyError } from '../../../lib/errors';
-import { supabase } from '../../../lib/supabase';
 import { useAuthed } from '../../../providers/SessionProvider';
 import { signOut } from '../../../services/auth';
+import { getMyPlan, PLAN_LABEL } from '../../../services/plans';
 import { updateMyProfile } from '../../../services/profile';
+import { fonts, space, useThemeColors } from '../../../theme';
 
 export default function Settings() {
   const { userId, profile, refreshProfile, session } = useAuthed();
+  const c = useThemeColors();
   const [name, setName] = useState(profile?.display_name ?? '');
   const [error, setError] = useState<string | null>(null);
-  const { data: sub } = useAsync(
-    async () => (await supabase.from('subscriptions').select('tier, status').eq('user_id', userId).maybeSingle()).data,
-    [userId],
-  );
+  const { data: plan, reload } = useAsync(() => getMyPlan(), [userId]);
+  useReloadOnFocus(reload);
 
   async function saveName() {
     try {
@@ -27,33 +30,44 @@ export default function Settings() {
     }
   }
 
+  const planSubtitle = plan
+    ? plan.source === 'trial'
+      ? 'Prueba gratis'
+      : plan.source === 'partner'
+        ? 'Cubierto por tu socio'
+        : plan.plan.max_apps
+          ? `${plan.apps_used} de ${plan.plan.max_apps} apps`
+          : 'Apps ilimitadas'
+    : null;
+
   return (
     <Screen>
-      <Card>
-        <Heading>Perfil</Heading>
-        <Body muted>{session?.user.email}</Body>
-        <Field label="Nombre visible para tu socio" value={name} onChangeText={setName} />
-        <Button title="Guardar" variant="secondary" onPress={saveName} disabled={!name.trim() || name === profile?.display_name} />
-      </Card>
+      <Text style={{ fontFamily: fonts.heading, fontSize: 30, color: c.ink, marginTop: space.md }}>Cuenta</Text>
 
-      <Card>
-        <Row style={{ justifyContent: 'space-between' }}>
-          <Heading>Plan</Heading>
-          <Badge label={sub?.tier ?? 'free'} tone="primary" />
-        </Row>
-        <Body muted>Los pagos aún no están integrados (precios ilustrativos). Ver docs/ARQUITECTURA.md.</Body>
-      </Card>
+      <Section title={session?.user.email ?? 'Perfil'}>
+        <LineField label="Tu nombre (lo ve tu socio)" value={name} onChangeText={setName} />
+        {name.trim() && name !== profile?.display_name ? (
+          <TextLink title="Guardar nombre" onPress={saveName} />
+        ) : null}
+      </Section>
 
-      <Card>
-        <Heading>Urgencias</Heading>
-        <Body muted>
-          {profile?.emergency_unlocks_per_month} desbloqueos al mes de {profile?.emergency_unlock_minutes} min. Puedes bajar
-          estos valores cuando quieras; subirlos requiere a tu socio.
-        </Body>
-      </Card>
+      <Section title="Suscripción">
+        <ListRow
+          title={plan ? `Plan ${PLAN_LABEL[plan.tier]}` : 'Plan'}
+          subtitle={planSubtitle}
+          chevron
+          onPress={() => router.push('/plans')}
+        />
+        <ListRow title="Historial de peticiones" chevron onPress={() => router.push('/history')} />
+        <ListRow
+          title="Desbloqueos de urgencia"
+          subtitle={`${profile?.emergency_unlocks_per_month ?? 0} al mes, de ${profile?.emergency_unlock_minutes ?? 0} min. Subirlos requiere a tu socio.`}
+        />
+      </Section>
 
-      <Heading>Permisos de este teléfono</Heading>
-      <PermissionsPanel />
+      <Section title="Permisos de este teléfono">
+        <PermissionsPanel />
+      </Section>
 
       <ErrorText>{error}</ErrorText>
       <Button title="Cerrar sesión" variant="ghost" onPress={() => signOut().catch((e) => setError(friendlyError(e)))} />
