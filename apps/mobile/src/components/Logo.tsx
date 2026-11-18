@@ -1,10 +1,14 @@
-import { Image } from 'react-native';
+import { Image, useColorScheme } from 'react-native';
 
+/**
+ * Logo completo. Modo oscuro: versión a color con glitch (fondo transparente).
+ * Modo claro: versión monocromática negra del kit de marca.
+ */
 export function Logo({ width = 220 }: { width?: number }) {
-  // logo-principal.png: 1024×330 (candado + "Go Unplugged" con glitch cian/magenta)
+  const light = useColorScheme() === 'light';
   return (
     <Image
-      source={require('../../assets/logo-principal.png')}
+      source={light ? require('../../assets/logo_mono_black.png') : require('../../assets/logo-principal.png')}
       style={{ width, height: (width * 330) / 1024 }}
       resizeMode="contain"
       accessibilityLabel="Go Unplugged"

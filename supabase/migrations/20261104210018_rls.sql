@@ -4,7 +4,7 @@
 --   * Cada usuario ve y edita lo suyo.
 --   * Un socio activo puede VER los datos de quien supervisa y EDITAR sus reglas.
 --   * Las operaciones sensibles (invitar, aceptar, pedir, decidir, revocar)
---     solo se hacen vía funciones RPC (ver 20261104000003_functions.sql).
+--     solo se hacen vía funciones RPC (ver 20261104210126_functions.sql).
 -- =============================================================================
 
 -- -----------------------------------------------------------------------------

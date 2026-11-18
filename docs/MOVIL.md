@@ -41,6 +41,18 @@ Para Google Play: `npx eas-cli@latest build -p android --profile production` (ge
 > (la pantalla de permisos ya explica qué hace y qué NO lee) y justificar el caso de bienestar digital/control parental.
 > El APK de instalación directa no tiene esta restricción.
 
+## 3b. Generar el APK con Docker (sin cuenta de Expo)
+
+Requisitos: Docker Desktop con **6 GB de RAM o más** y unos 15 GB libres. Desde `apps/mobile`:
+
+```bash
+docker build --platform linux/amd64 -f docker/android.Dockerfile --target export --output dist .
+```
+
+El APK queda en `apps/mobile/dist/go-unplugged.apk`. La primera vez tarda 20–40 min (descarga SDK, NDK y
+dependencias); después Docker reutiliza las capas en caché. Está firmado con la clave de depuración: sirve para
+instalar y probar, no para Google Play. En Mac con chip Apple corre emulado (más lento).
+
 ## 4. Generar la app de iOS
 
 1. Cuenta de Apple Developer (99 USD/año). Agrega tu Team ID en `app.json` → `expo.ios.appleTeamId`.

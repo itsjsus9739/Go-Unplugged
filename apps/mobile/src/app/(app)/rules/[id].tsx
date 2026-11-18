@@ -5,7 +5,7 @@ import { Alert, Platform, Pressable } from 'react-native';
 import { AppBlocker, isNativeBlockerAvailable, type LaunchableApp } from '../../../../modules/app-blocker';
 import { Body, Button, Card, ChipPicker, ErrorText, Field, Heading, Row, Screen } from '../../../components/ui';
 import { useAsync } from '../../../hooks/useAsync';
-import { friendlyError } from '../../../lib/errors';
+import { errorCode, friendlyError } from '../../../lib/errors';
 import { DAY_LABELS, formatMinutes } from '../../../lib/format';
 import { useAuthed } from '../../../providers/SessionProvider';
 import {
@@ -25,10 +25,11 @@ export default function RuleDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { userId, device, resync } = useAuthed();
   const c = useThemeColors();
-  const { data: rule, reload } = useAsync(() => getRule(id), [id]);
+  const { data: rule, reload, error: loadError, loading } = useAsync(() => getRule(id), [id]);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [showPicker, setShowPicker] = useState(false);
+  const [savingApp, setSavingApp] = useState<string | null>(null);
   const { data: apps } = useAsync<LaunchableApp[]>(
     () => (showPicker && Platform.OS !== 'ios' ? AppBlocker.getLaunchableApps() : Promise.resolve([])),
     [showPicker],
@@ -50,7 +51,8 @@ export default function RuleDetail() {
   }
 
   async function toggleApp(app: LaunchableApp) {
-    if (!rule) return;
+    if (!rule || savingApp) return; // evita el doble toque mientras se guarda
+    setSavingApp(app.identifier);
     setError(null);
     try {
       const existing = rule.rule_targets.find((t) => t.identifier === app.identifier);
@@ -63,7 +65,16 @@ export default function RuleDetail() {
       await reload();
       await resync();
     } catch (e) {
-      setError(friendlyError(e));
+      if (errorCode(e) === 'plan_app_limit') {
+        Alert.alert('Llegaste al tope de tu plan', 'El plan Gratis permite limitar hasta 3 apps.', [
+          { text: 'Ahora no', style: 'cancel' },
+          { text: 'Ver planes', onPress: () => router.push('/plans') },
+        ]);
+      } else {
+        setError(friendlyError(e));
+      }
+    } finally {
+      setSavingApp(null);
     }
   }
 
@@ -111,7 +122,20 @@ export default function RuleDetail() {
     ]);
   }
 
-  if (!rule) return <Screen><Body muted>Cargando…</Body></Screen>;
+  if (!rule) {
+    return (
+      <Screen>
+        {loading && !loadError ? (
+          <Body muted>Cargando…</Body>
+        ) : (
+          <>
+            <Body muted>Este límite ya no existe. Puede que lo hayas borrado o que tu socio lo haya cambiado.</Body>
+            <Button title="Volver" variant="secondary" onPress={() => router.back()} />
+          </>
+        )}
+      </Screen>
+    );
+  }
 
   const filtered = (apps ?? []).filter((a) => a.name.toLowerCase().includes(search.toLowerCase()));
 
@@ -177,7 +201,7 @@ export default function RuleDetail() {
                 <Row style={{ justifyContent: 'space-between', paddingVertical: space.xs }}>
                   <Body>{a.name}</Body>
                   <Body style={{ color: selected.has(a.identifier) ? c.primary : c.inkFaint }}>
-                    {selected.has(a.identifier) ? '✓' : '+'}
+                    {savingApp === a.identifier ? '…' : selected.has(a.identifier) ? '✓' : '+'}
                   </Body>
                 </Row>
               </Pressable>

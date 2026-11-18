@@ -1,23 +1,38 @@
 import { Link } from 'expo-router';
-import { View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { Logo } from '../../components/Logo';
-import { Body, Button, Card, Eyebrow, Screen, Title } from '../../components/ui';
+import { Body, Button, Card, Screen, Title } from '../../components/ui';
 import { isSupabaseConfigured } from '../../lib/env';
-import { space } from '../../theme';
+import { fonts, space, useThemeColors } from '../../theme';
+
+const PILLARS = [
+  ['01', 'Un límite', 'Eliges cuándo desconectarte.'],
+  ['02', 'Un acuerdo', 'Compartes la decisión.'],
+  ['03', 'Más tiempo', 'Lo recuperan juntos.'],
+];
 
 /** Bienvenida: propuesta de valor + pilares de marca. */
 export default function Welcome() {
+  const c = useThemeColors();
   return (
     <Screen>
       <View style={{ marginTop: space.xxl, gap: space.xl }}>
         <Logo />
-        <Title style={{ fontSize: 34, lineHeight: 40 }}>Recupera tu tiempo. Con alguien que te acompañe.</Title>
+        <Title style={{ fontSize: 34, lineHeight: 40 }}>Recupera tu tiempo, con alguien que te acompañe.</Title>
         <Body muted>
           Le entregas el control de tus límites de pantalla a un familiar o amigo de confianza. Cada minuto extra que
           pidas pasa primero por su aprobación.
         </Body>
-        <Eyebrow>Un límite · Un acuerdo · Más tiempo</Eyebrow>
+        <View style={{ gap: space.md }}>
+          {PILLARS.map(([n, t, d]) => (
+            <View key={n} style={{ flexDirection: 'row', gap: space.lg, alignItems: 'baseline' }}>
+              <Text style={{ fontFamily: fonts.bodySemi, fontSize: 13, color: c.primary, fontVariant: ['tabular-nums'] }}>{n}</Text>
+              <Text style={{ fontFamily: fonts.bodySemi, fontSize: 16, color: c.ink, width: 110 }}>{t}</Text>
+              <Text style={{ fontFamily: fonts.body, fontSize: 15, color: c.inkSoft, flex: 1 }}>{d}</Text>
+            </View>
+          ))}
+        </View>
       </View>
 
       {!isSupabaseConfigured && (

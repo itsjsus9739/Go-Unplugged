@@ -17,6 +17,8 @@ type SessionState = {
   session: Session | null;
   userId: string | null;
   profile: Profile | null;
+  /** true cuando ya se intentó cargar el perfil del usuario actual (o no hay sesión). */
+  profileSettled: boolean;
   device: Device | null;
   refreshProfile: () => Promise<void>;
   /** Re-sincroniza reglas + desbloqueos con el bloqueador nativo. */
@@ -29,6 +31,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(!isSupabaseConfigured);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [profileSettledFor, setProfileSettledFor] = useState<string | null>(null);
   const [device, setDevice] = useState<Device | null>(null);
   const userId = session?.user.id ?? null;
 
@@ -69,7 +72,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     if (!userId) return;
     getMyProfile(userId)
       .then(setProfile)
-      .catch((e) => console.warn('[profile]', e));
+      .catch((e) => console.warn('[profile]', e))
+      .finally(() => setProfileSettledFor(userId));
     registerThisDevice(userId)
       .then(setDevice)
       .catch((e) => console.warn('[device]', e));
@@ -90,9 +94,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   useRealtime('limit_rules', resync, userId ? `user_id=eq.${userId}` : undefined, !!userId);
   useRealtime('rule_targets', resync, userId ? `user_id=eq.${userId}` : undefined, !!userId);
 
+  const profileSettled = !userId || profileSettledFor === userId;
   const value = useMemo(
-    () => ({ ready, session, userId, profile, device, refreshProfile, resync }),
-    [ready, session, userId, profile, device, refreshProfile, resync],
+    () => ({ ready, session, userId, profile, profileSettled, device, refreshProfile, resync }),
+    [ready, session, userId, profile, profileSettled, device, refreshProfile, resync],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

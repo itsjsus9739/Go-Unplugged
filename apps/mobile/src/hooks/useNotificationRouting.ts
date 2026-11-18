@@ -1,6 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import { router } from 'expo-router';
 import { useEffect } from 'react';
+import { Platform } from 'react-native';
 
 import { decideRequest } from '../services/requests';
 
@@ -9,8 +10,12 @@ import { decideRequest } from '../services/requests';
  *  - botones "Aprobar"/"Denegar" (categoría extension_request) → decide sin abrir pantallas
  *  - toque normal → abre el detalle de la petición
  */
+// En web expo-notifications no implementa la última respuesta (lanzaría un error).
+const useLastResponse =
+  Platform.OS === 'web' ? () => null : Notifications.useLastNotificationResponse;
+
 export function useNotificationRouting() {
-  const last = Notifications.useLastNotificationResponse();
+  const last = useLastResponse();
 
   useEffect(() => {
     if (!last) return;

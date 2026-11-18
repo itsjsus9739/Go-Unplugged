@@ -233,7 +233,13 @@
 
   :focus-visible{ outline: 2px solid var(--indigo-soft); outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce){ *{ scroll-behavior:auto !important; transition:none !important; } }
-</style>
+
+    /* VIDEO */
+    .video-frame{ position:relative; max-width:1040px; margin: 0 auto; border-radius: 22px; overflow:hidden;
+      border:1px solid var(--line); background:#000; box-shadow: 0 30px 80px rgba(0,0,0,.35); aspect-ratio:16/9; }
+    .video-frame video{ width:100%; height:100%; display:block; object-fit:cover; }
+    .video-note{ text-align:center; color: var(--ink-faint); font-size:.9rem; margin-top:14px; }
+  </style>
 </head>
 <body>
 
@@ -241,6 +247,7 @@
   <div class="wrap nav">
     <div class="brand"><span class="brand-dot"></span> Go Unplugged</div>
     <nav class="nav-links">
+      <a href="#video">Video</a>
       <a href="#como-funciona">Cómo funciona</a>
       <a href="#planes">Planes</a>
       <a href="#faq">Preguntas</a>
@@ -323,6 +330,24 @@
         <h2>Nació de una pregunta simple: ¿por qué seguimos perdiendo contra nuestro propio teléfono?</h2>
         <p>Las apps de bienestar digital tradicionales dependen de que tú mismo te resistas a desactivarlas — y casi siempre pierdes. Go Unplugged mueve esa decisión fuera de tu teléfono, hacia alguien que realmente quiere ayudarte a cumplir lo que te propusiste.</p>
       </div>
+    </div>
+  </section>
+
+  <!-- VIDEO -->
+  <section class="section" id="video" style="border-top:1px solid var(--line);">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="kicker" style="text-align:center;">Míralo en 47 segundos</div>
+        <h2>Un límite, un acuerdo, más tiempo</h2>
+        <p>Cómo funciona Go Unplugged, los planes y cómo empezar gratis.</p>
+      </div>
+      <div class="video-frame">
+        <video controls playsinline preload="metadata" poster="docs/video-stand/poster.jpg">
+          <source src="docs/video-stand/go-unplugged-stand.mp4" type="video/mp4">
+          Tu navegador no puede reproducir el video. <a href="docs/video-stand/go-unplugged-stand.mp4">Descárgalo aquí</a>.
+        </video>
+      </div>
+      <p class="video-note">Funciona también sin sonido.</p>
     </div>
   </section>
 

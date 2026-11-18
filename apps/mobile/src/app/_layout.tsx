@@ -13,7 +13,7 @@ import { useThemeColors } from '../theme';
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
 function RootNavigator() {
-  const { ready, session, profile } = useSession();
+  const { ready, session, profile, profileSettled } = useSession();
   const c = useThemeColors();
   const scheme = useColorScheme();
   const [fontsLoaded] = useFonts({
@@ -24,7 +24,9 @@ function RootNavigator() {
     Inter_600SemiBold,
   });
 
-  const loaded = ready && fontsLoaded;
+  // Esperar al perfil evita que las guardas redirijan antes de tiempo y se pierda
+  // un deep link (p. ej. gounplugged://blocked abierto por el servicio de bloqueo).
+  const loaded = ready && fontsLoaded && profileSettled;
   useEffect(() => {
     if (loaded) SplashScreen.hideAsync().catch(() => undefined);
   }, [loaded]);

@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { Body, Button, ChipPicker, ErrorText, Field, Heading, Screen } from '../../../components/ui';
 import { friendlyError } from '../../../lib/errors';
@@ -14,9 +14,12 @@ export default function NewRule() {
   const [name, setName] = useState('Redes sociales');
   const [limit, setLimit] = useState(60);
   const [busy, setBusy] = useState(false);
+  const submitting = useRef(false); // evita crear el límite dos veces con un doble toque
   const [error, setError] = useState<string | null>(null);
 
   async function save() {
+    if (submitting.current) return;
+    submitting.current = true;
     setBusy(true);
     setError(null);
     try {
@@ -25,6 +28,7 @@ export default function NewRule() {
     } catch (e) {
       setError(friendlyError(e));
       setBusy(false);
+      submitting.current = false;
     }
   }
 

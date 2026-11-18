@@ -1,5 +1,9 @@
 # Supabase — Go Unplugged
 
+> **Proyecto en uso:** `go unplugged` · ref `qvdtjteawqzoqbilnzeg` · región `us-east-2` ·
+> URL `https://qvdtjteawqzoqbilnzeg.supabase.co`. Las migraciones de `migrations/` ya están aplicadas
+> (incluye RLS, Realtime y el job de pg_cron). Falta solo el paso 4 (Edge Function de push + webhook).
+
 ## Crear el proyecto y aplicar el esquema
 
 1. Crea un proyecto en <https://supabase.com> (región sugerida: `us-east-1` o la más cercana a Colombia).
@@ -47,10 +51,11 @@ PG_BIN=/usr/lib/postgresql/16/bin ./supabase/tests/run_local.sh
 
 | Archivo | Contenido |
 |---|---|
-| `20261104000001_schema.sql` | Tipos, tablas, índices, vista `active_grants`, trigger de perfil al registrarse, catálogo de planes |
-| `20261104000002_rls.sql` | Helpers `is_partner_of` / `is_connected_to`, políticas RLS y grants por columna |
-| `20261104000003_functions.sql` | RPC de negocio, guardas «solo el socio afloja», avisos antimanipulación, mantenimiento |
-| `20261104000004_realtime_cron.sql` | Publicación Realtime y job de pg_cron |
+| `20261104205946_schema.sql` | Tipos, tablas, índices, vista `active_grants`, trigger de perfil al registrarse, catálogo de planes |
+| `20261104210018_rls.sql` | Helpers `is_partner_of` / `is_connected_to`, políticas RLS y grants por columna |
+| `20261104210126_functions.sql` | RPC de negocio, guardas «solo el socio afloja», avisos antimanipulación, mantenimiento |
+| `20261104210129_realtime_cron.sql` | Publicación Realtime y job de pg_cron |
+| `20261105155817_plans.sql` | Beneficios por plan (tope de apps, historial, cobertura Pareja/Familiar), `my_plan()`, prueba gratis de 7 días |
 
 Cambios futuros: siempre en una migración nueva (`npx supabase migration new <nombre>`), nunca editando las ya aplicadas.
 Después de cambiar el esquema: `cd apps/mobile && npm run gen:types`.

@@ -21,6 +21,8 @@ export default function AppLayout() {
       <Stack.Screen name="request/[id]" options={{ title: 'Petición' }} />
       <Stack.Screen name="rules/new" options={{ title: 'Nuevo límite', presentation: 'modal' }} />
       <Stack.Screen name="rules/[id]" options={{ title: 'Límite' }} />
+      <Stack.Screen name="plans" options={{ title: '' }} />
+      <Stack.Screen name="history" options={{ title: 'Historial' }} />
     </Stack>
   );
 }

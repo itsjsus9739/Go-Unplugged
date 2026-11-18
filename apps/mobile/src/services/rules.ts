@@ -70,6 +70,10 @@ export async function deleteRuleOrRequest(ruleId: string, reason?: string) {
   return { applied: false as const, requestId: req.id };
 }
 
+/**
+ * Agrega una app al límite. Si ya estaba (doble toque, lista desactualizada) no hace nada:
+ * se usa ON CONFLICT DO NOTHING porque rule_targets no admite UPDATE por RLS.
+ */
 export async function addTarget(input: {
   ruleId: string;
   userId: string;
@@ -77,8 +81,8 @@ export async function addTarget(input: {
   identifier: string;
   displayName: string;
   deviceId?: string | null;
-}): Promise<RuleTarget> {
-  return unwrap(
+}): Promise<RuleTarget | null> {
+  const rows = unwrap(
     await supabase
       .from('rule_targets')
       .upsert(
@@ -90,11 +94,11 @@ export async function addTarget(input: {
           display_name: input.displayName,
           device_id: input.deviceId ?? null,
         },
-        { onConflict: 'rule_id,platform,identifier' },
+        { onConflict: 'rule_id,platform,identifier', ignoreDuplicates: true },
       )
-      .select('*')
-      .single(),
+      .select('*'),
   );
+  return rows[0] ?? null;
 }
 
 export async function removeTargetOrRequest(target: RuleTarget, reason?: string) {
